@@ -1,10 +1,28 @@
 # Generador de actividades con TIC
 
 Herramienta de un solo archivo que convierte cinco decisiones docentes en una ficha,
-una secuencia con tiempos y una rúbrica analítica con descriptores.
+una secuencia con tiempos y dos rúbricas, y califica en vivo si esas decisiones se sostienen entre sí.
 
-- `index.html` — el generador (tema claro y oscuro, fondo 3D, sin dependencias).
-- `ejemplo.html` — salida real del generador para un curso de Ingeniería.
+**Abrir:** https://fabig76.github.io/generador-tic/
+
+## Qué hace
+
+- **Semáforo de alineación.** Mientras el docente escribe, aplica la rúbrica del módulo a su diseño:
+  detecta el verbo del resultado de aprendizaje, lo ubica en la taxonomía de Bloom revisada, avisa si no es
+  observable («conocer», «comprender»), compara el nivel del verbo con el de la evidencia y revisa tiempo y
+  restricciones. Cada criterio recibe nota, explicación y un botón para corregir.
+- **Cinco piezas:** ficha de 5 campos, secuencia, rúbrica del diseño aplicada, rúbrica para valorar la
+  evidencia del estudiante (cambia según el nivel del verbo) y trazabilidad de la herramienta.
+- **Compartir con un colega.** Las decisiones viajan en el enlace (`#a=…`); no hay servidor.
+- **Mi banco de actividades.** Se guarda en el navegador y se exporta o importa como archivo `.json`.
+- **Descargas:** PDF (impresión) y página `.html` autónoma.
+
+La nota es una estimación por reglas, pensada para conversar sobre el diseño; no reemplaza el juicio docente.
+
+## Archivos
+
+- `index.html` — el generador (tema claro y oscuro, fondo 3D en canvas, sin dependencias, funciona sin conexión).
+- `ejemplo.html` — salida real del botón «Descargar como página» para un curso de Ingeniería.
 
 Actividad del módulo 72P05 «Una idea digital para mi área».
 Heyler Fabio Guaza Lesmes · Especialización en Docencia Universitaria.
