@@ -539,7 +539,7 @@
         <div><i class="luz medio"></i><b>Amarillo</b> — funciona, y mejora con un ajuste (4,2).</div>
         <div><i class="luz mal" style="animation:none"></i><b>Rojo</b> — dos decisiones se contradicen (3,4 o 2,0).</div>
       </div>
-      <p class="nota" style="margin-top:10px">La nota de arriba es el promedio de las cuatro. La calcula un conjunto de reglas, no una persona ni una inteligencia artificial: sirve para conversar sobre el diseño y no reemplaza su criterio.</p>
+      <p class="nota" style="margin-top:10px">La nota de arriba es el promedio de las cuatro, con una excepción: si la evidencia no alcanza para demostrar el resultado, la nota no pasa de 3,9 aunque lo demás esté bien. La calcula un conjunto de reglas, no una persona ni una inteligencia artificial: sirve para conversar sobre el diseño y no reemplaza su criterio.</p>
 
       <h3 class="h3s">Un caso, antes y después</h3>
       <div class="antes">
@@ -712,7 +712,7 @@ const RE_NO=reVerbo(NO_OBSERVABLES);
 const SUGERIDOS=['identificar','explicar','resolver','analizar','argumentar','diseñar'];
 
 const EVIDENCIAS={
-  recordar:/cuestionario|quiz|opci[oó]n m[uú]ltiple|examen|test\b|falso y verdadero|glosario|listado/iu,
+  recordar:/cuestionario|quiz|opci[oó]n m[uú]ltiple|selecci[oó]n m[uú]ltiple|[uú]nica respuesta|examen|\bparcial\b|prueba (escrita|objetiva|tipo)|preguntas cerradas|test\b|falso y verdadero|emparejamiento|glosario|listado/iu,
   comprender:/resumen|mapa conceptual|mapa mental|infograf[ií]a|exposici[oó]n|explicaci[oó]n|esquema|l[ií]nea de tiempo|cartelera/iu,
   aplicar:/ejercicio|taller resuelto|c[oó]digo|c[aá]lculo|procedimiento|pr[aá]ctica|simulaci[oó]n|laboratorio|problema resuelto|demostraci[oó]n/iu,
   analizar:/matriz|an[aá]lisis|diagn[oó]stico|cuadro comparativo|comparativ[oa]|informe|estudio de caso|m[eé]tricas|reporte|cartograf[ií]a/iu,
@@ -854,7 +854,10 @@ function buscarVerbo(txt){
   probar(RE_NO,'no');
   return mejor;
 }
+/* «un examen sobre el análisis de casos»: lo que sigue a «sobre» es el tema, no el entregable */
+const RE_TEMA=/\s(sobre|acerca de|respecto a|en torno a)\s.*?(?=[,;]|\sy\s(un|una|el|la)\s|\scon\s(un|una|el|la)\s|$)/giu;
 function nivelEvidencia(txt){
+  txt=txt.replace(RE_TEMA,'');
   let r=null;
   NIVELES.forEach(n=>{ const m=EVIDENCIAS[n].exec(txt); if(m) r={nivel:n,palabra:m[0].toLowerCase()}; });
   return r;
@@ -934,9 +937,13 @@ function analizar(d){
   crit.forEach((k,i)=>{ k.c=RUBRICA_DISENO[i].c; if(k.col>=0){ k.pt=PUNTOS[k.col]; k.estado=k.col<=1?'ok':k.col===2?'medio':'mal'; } });
   const val=crit.filter(k=>k.col>=0);
   const completo=val.length===4;
-  const nota=val.length ? Math.round(val.reduce((a,k)=>a+k.pt,0)/val.length*10)/10 : null;
+  let nota=val.length ? Math.round(val.reduce((a,k)=>a+k.pt,0)/val.length*10)/10 : null;
+  /* si la evidencia no demuestra el resultado, lo demás no lo compensa */
+  const peor=Math.max(crit[0].col,crit[2].col), techo=peor===4?2.9:3.9;
+  const topado=nota!==null && peor>=3 && nota>techo;
+  if(topado) nota=techo;
   const etq=nota===null?'':nota>=4.95?'Excelente':nota>=4.6?'Sobresaliente':nota>=4.0?'Bueno':nota>=3.0?'Aceptable':'No aceptable';
-  return {v,verbo,observable,nv,ev,H,crit,completo,nota,etq};
+  return {v,verbo,observable,nv,ev,H,crit,completo,nota,etq,topado};
 }
 const coma=n=>n.toFixed(1).replace('.',',');
 
@@ -949,7 +956,7 @@ function pintarSemaforo(A){
   const C=276.5;
   if(A.completo){
     $('medVal').style.opacity=1; $('medVal').style.strokeDashoffset=C*(1-(A.nota-1)/4);
-    $('medNum').textContent=coma(A.nota); $('medEtq').textContent=A.etq;
+    $('medNum').textContent=coma(A.nota); $('medEtq').textContent=A.etq+(A.topado?' · tope por evidencia':'');
   }else{
     $('medVal').style.opacity=0; $('medVal').style.strokeDashoffset=C; $('medNum').textContent='—';
     $('medEtq').textContent=A.crit.some(k=>k.estado==='mal')?'Hay algo por revisar':'Esperando sus decisiones';
@@ -1013,7 +1020,7 @@ function generar(sinScroll){
 
   /* rúbrica del diseño, aplicada */
   $('salida-diseno').innerHTML=`
-    <div class="resumen-nota"><strong>${A.completo?coma(A.nota):'—'}</strong> / 5,0 · <b style="color:var(--texto)">${A.etq}</b> · promedio de los cuatro criterios</div>
+    <div class="resumen-nota"><strong>${A.completo?coma(A.nota):'—'}</strong> / 5,0 · <b style="color:var(--texto)">${A.etq}</b> · ${A.topado?'con tope: la evidencia no alcanza para demostrar el resultado':'promedio de los cuatro criterios'}</div>
     <div class="tabla"><table><thead><tr><th style="width:19%">Criterio</th>${ESCALA.map(n=>`<th>${n}</th>`).join('')}</tr></thead><tbody>
     ${RUBRICA_DISENO.map((k,i)=>`<tr><td><b>${k.c}</b><span class="d">${k.d}</span></td>${k.n.map((x,j)=>`<td class="${A.crit[i].col===j?'logro':''}">${x}</td>`).join('')}</tr>`).join('')}
     </tbody></table></div>
