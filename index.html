@@ -172,6 +172,7 @@
       <div class="marca"><i></i> Generador de actividades con TIC</div>
       <nav>
         <button class="btn t" onclick="document.getElementById('hacer').scrollIntoView({behavior:'smooth'})">Crear la mía</button>
+        <button class="btn t" onclick="document.getElementById('resultado').scrollIntoView({behavior:'smooth'})">Ver el ejemplo</button>
         <button class="btn t" onclick="document.getElementById('como').scrollIntoView({behavior:'smooth'})">Cómo funciona</button>
         <button class="btn icono" id="tema" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
       </nav>
@@ -263,6 +264,12 @@
     <div class="wrap">
       <div class="titulo"><span class="n">02</span><h2>Lo que produce</h2></div>
       <p class="sub">Cuatro piezas derivadas de sus cinco decisiones. Ninguna es inventada: cada una se rastrea hasta un campo.</p>
+      <div id="avisoEjemplo" style="display:none;align-items:center;gap:10px;margin:-6px 0 16px;padding:10px 14px;
+        border:1px dashed color-mix(in srgb,var(--acento) 50%,transparent);border-radius:12px;
+        background:color-mix(in srgb,var(--acento) 8%,transparent);font-size:13px;color:var(--suave)">
+        <b style="color:var(--acento)">Ejemplo cargado</b> — este es el resultado con las cinco decisiones de un curso de Ingeniería.
+        Abajo puedes cambiarlas y el resultado se recalcula.
+      </div>
       <div class="pestanas" id="pestanas">
         <button class="on" data-p="ficha">Ficha de 5 campos</button>
         <button data-p="secuencia">Secuencia</button>
@@ -466,7 +473,7 @@ function marcar(avance){
   });
 });
 
-function generar(){
+function generar(sinScroll){
   const area=document.getElementById('area').value.trim() || 'su área disciplinar';
   const rae=document.getElementById('rae').value.trim();
   const evidencia=document.getElementById('evidencia').value.trim();
@@ -490,7 +497,7 @@ function generar(){
     {k:'1 · ¿Qué queremos que aprendan?', v: rae, s:'Resultado de aprendizaje declarado.'},
     {k:'2 · Actividad propuesta', v: `${bloques.map(b=>`${b.t} (${b.m} min)`).join(' · ')}. El estudiante produce la evidencia declarada trabajando en ${estado.nivel.toLowerCase()}.`},
     {k:'3 · Herramienta digital', v: `<b>${herr.n}</b> — ${herr.t}.`, s: herr.nube ? 'Requiere conexión.' : 'Funciona sin conexión.'},
-    {k:'4 · ¿Por qué esa herramienta ayuda al objetivo?', v: `Porque produce exactamente la evidencia declarada: ${evidencia.charAt(0).toLowerCase()+evidencia.slice(1)}. No se eligió por ser llamativa, sino por su capacidad de registrar el proceso y no solo el resultado.`},
+    {k:'4 · ¿Por qué esa herramienta ayuda al objetivo?', v: `Porque produce exactamente la evidencia declarada: ${evidencia.replace(/\.+$/,'').charAt(0).toLowerCase()+evidencia.replace(/\.+$/,'').slice(1)}. No se eligió por ser llamativa, sino por su capacidad de registrar el proceso y no solo el resultado.`},
     {k:'5 · ¿Qué evidencia podría demostrar que aprendieron?', v: evidencia, s:`Se valora con la rúbrica de la pestaña siguiente.`}
   ];
   document.getElementById('salida-ficha').innerHTML=ficha.map(f=>
@@ -558,7 +565,7 @@ function generar(){
     <div class="linea"><div class="t">Evidencia</div><div class="d"><b>${evidencia}</b></div></div>`;
 
   document.getElementById('resultado').classList.add('visible');
-  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+  if(!sinScroll) document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 /* ============================================================
@@ -566,11 +573,22 @@ function generar(){
    ============================================================ */
 document.getElementById('generar').addEventListener('click',generar);
 
-document.getElementById('ejemplo').addEventListener('click',()=>{
+function cargarEjemplo(sinScroll){
   document.getElementById('area').value='Ingeniería de Sistemas · evaluación de modelos de IA';
   document.getElementById('rae').value='Auditar un clasificador identificando disparidades de desempeño entre subgrupos y justificar una corrección con criterios éticos.';
   document.getElementById('evidencia').value='La matriz de análisis con las métricas desglosadas por subgrupo y un plan de corrección de una página.';
-  marcar(4); generar();
+  marcar(4);
+  generar(!!sinScroll);
+  document.getElementById('estado').textContent='Estás viendo el ejemplo. Cambia cualquier decisión y se recalcula solo.';
+  document.getElementById('estado').style.color='var(--acento)';
+}
+document.getElementById('ejemplo').addEventListener('click',()=>cargarEjemplo(false));
+
+// el ejemplo aparece apenas se abre el archivo
+window.addEventListener('load',()=>{
+  cargarEjemplo(true);
+  const aviso=document.getElementById('avisoEjemplo');
+  if(aviso) aviso.style.display='flex';
 });
 
 document.getElementById('limpiar').addEventListener('click',()=>{
