@@ -15,6 +15,8 @@ una secuencia con tiempos y dos rúbricas, y califica en vivo si esas decisiones
   evidencia del estudiante (cambia según el nivel del verbo) y trazabilidad de la herramienta.
 - **Compartir con un colega.** Las decisiones viajan en el enlace (`#a=…`); no hay servidor.
 - **Mi banco de actividades.** Se guarda en el navegador y se exporta o importa como archivo `.json`.
+- **Sirve para cualquier disciplina** que pueda nombrar qué hace el estudiante y qué entrega; trae ejemplos
+  cargables de salud, ingeniería, derecho, educación, ciencias económicas, comunicación y ciencias básicas.
 - **Descargas:** PDF (impresión) y página `.html` autónoma.
 
 La nota es una estimación por reglas, pensada para conversar sobre el diseño; no reemplaza el juicio docente.

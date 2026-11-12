@@ -96,7 +96,7 @@
   .capa .gran small{font-size:14px;color:var(--suave);font-weight:600;letter-spacing:0}
 
   /* secciones */
-  section{padding:clamp(34px,5vw,64px) 0}
+  section{padding:clamp(34px,5vw,64px) 0;scroll-margin-top:56px}
   .titulo{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
   .titulo .n{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--acento);border:1px solid color-mix(in srgb,var(--acento) 40%,transparent);
     padding:4px 9px;border-radius:6px}
@@ -232,6 +232,28 @@
   .bloom .no{border-color:color-mix(in srgb,var(--mal) 50%,transparent)}
   .bloom .no b{color:var(--mal)}
 
+  .h3s{font-size:17px;letter-spacing:-.015em;margin:34px 0 12px}
+  .pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .paso{border:1px solid var(--borde);background:color-mix(in srgb,var(--panelSolido) 92%,transparent);backdrop-filter:blur(10px);border-radius:16px;padding:18px}
+  .paso span{display:grid;place-items:center;width:30px;height:30px;font-size:13px;font-weight:800;color:var(--sobre);
+    background:linear-gradient(135deg,var(--acento),var(--acento2));border-radius:9px;margin-bottom:12px}
+  .paso h4{font-size:15.5px;margin-bottom:6px}
+  .paso p{font-size:13.5px;color:var(--suave)}
+  .luces{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:13.5px;color:var(--suave)}
+  .luces div{display:flex;align-items:center;gap:8px}
+  .luces .luz{margin:0;flex:none}
+  .luces b{color:var(--texto)}
+  .antes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .lado{border:1px solid var(--borde);border-radius:16px;padding:18px;background:color-mix(in srgb,var(--panelSolido) 92%,transparent);display:flex;flex-direction:column;gap:8px}
+  .lado.no{border-color:color-mix(in srgb,var(--mal) 45%,transparent)}
+  .lado.si{border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+  .lado h4{display:flex;align-items:center;gap:9px;font-size:14.5px}
+  .lado h4 .luz{margin:0}
+  .lado p{font-size:13.5px;color:var(--suave)}
+  .lado p b{color:var(--texto)}
+  .lado .por{font-size:13px;color:var(--tenue);margin-bottom:6px}
+  .lado .btn{align-self:flex-start;margin-top:auto}
+  .guardada .area{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--acento);font-weight:800}
   footer{border-top:1px solid var(--borde);padding:28px 0 44px;color:var(--tenue);font-size:12.5px}
   footer .in{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
@@ -246,8 +268,10 @@
     .dos{grid-template-columns:1fr}
     .semaforo{position:static}
   }
-  @media (max-width:760px){
+  @media (max-width:1040px){
     .barra nav .btn.t{display:none}
+  }
+  @media (max-width:760px){
     .capa .gran{font-size:40px}
   }
   @media (prefers-reduced-motion:reduce){
@@ -258,7 +282,7 @@
     @page{ size:A4; margin:16mm 15mm; }
     *{box-shadow:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;backdrop-filter:none!important}
     html,body{background:#fff!important;color:#101828!important;overflow:visible!important}
-    #fondo3d,.velo,.barra,header,#hacer,#banco,#como,footer,.acciones,.pestanas,.aviso,.tostada,
+    #fondo3d,.velo,.barra,header,#hacer,#banco,#como,#disciplinas,footer,.acciones,.pestanas,.aviso,.tostada,
     #resultado .titulo,#resultado .sub{display:none!important}
     .contenido{position:static}
     #docHeader{display:block!important;padding:0 0 16px;border-bottom:2px solid #101828;margin-bottom:22px}
@@ -324,6 +348,7 @@
         <button class="btn t" data-ir="resultado">Resultado</button>
         <button class="btn t" data-ir="banco">Mi banco<span class="insignia" id="cuentaBanco">0</span></button>
         <button class="btn t" data-ir="como">Cómo funciona</button>
+        <button class="btn t" data-ir="disciplinas">Disciplinas</button>
         <button class="btn icono" id="tema" title="Cambiar tema" aria-label="Cambiar tema"><span class="ic"></span></button>
       </nav>
     </div>
@@ -494,15 +519,57 @@
   <section id="como">
     <div class="wrap">
       <div class="titulo"><span class="n">04</span><h2>Cómo funciona</h2></div>
-      <p class="sub">Tres reglas ordenan la propuesta y cuatro criterios la califican.</p>
-      <div class="panel">
-        <div class="linea"><div class="t">Regla 1</div><div class="d"><b>Primero la evidencia.</b> El verbo del resultado de aprendizaje indica qué tipo de prueba tiene sentido pedir. Si el verbo pide evaluar y la evidencia es un cuestionario, el semáforo lo señala.</div></div>
-        <div class="linea"><div class="t">Regla 2</div><div class="d"><b>Después el contexto.</b> Con conexión inestable o sin equipos se descartan las herramientas en la nube. En modalidad virtual se descartan las que solo sirven en un salón.</div></div>
-        <div class="linea"><div class="t">Regla 3</div><div class="d"><b>Al final la herramienta, con una razón.</b> Se elige la que deja ver lo que el verbo pide. Usted puede cambiarla entre las alternativas de la pestaña Trazabilidad.</div></div>
-        <div class="linea"><div class="t">Calificación</div><div class="d">Cada criterio recibe uno de los cinco niveles de la escala del módulo (5,0 · 4,7 · 4,2 · 3,4 · 2,0) y la nota es su promedio. Es una estimación por reglas, hecha para conversar sobre el diseño: no reemplaza el juicio del docente.</div></div>
+      <p class="sub">En corto: usted responde cinco preguntas, el generador revisa que sus respuestas encajen entre sí y le devuelve la actividad armada.</p>
+
+      <div class="pasos">
+        <div class="paso"><span>1</span><h4>Usted decide</h4><p>Escribe qué deben lograr sus estudiantes y qué les va a recibir como prueba. Marca el nivel, el tiempo de la sesión y las condiciones de su aula.</p></div>
+        <div class="paso"><span>2</span><h4>El generador revisa</h4><p>Busca el verbo de su resultado («analizar», «diseñar»…), mira qué entregable pidió y comprueba que ese entregable alcance para demostrar ese verbo.</p></div>
+        <div class="paso"><span>3</span><h4>Usted recibe</h4><p>La ficha, la secuencia con tiempos, la rúbrica para sus estudiantes y una herramienta digital que cabe en su aula, con la razón por la que se eligió.</p></div>
       </div>
+
+      <h3 class="h3s">Las cuatro preguntas que hace el semáforo</h3>
+      <div class="panel">
+        <div class="linea"><div class="t">¿Se ve?</div><div class="d"><b>¿Se puede ver lo que el estudiante logra?</b> El verbo debe nombrar algo que el estudiante hace. «Comprender la célula» no se ve; «explicar la función de cada organelo» sí.</div></div>
+        <div class="linea"><div class="t">¿Sirve?</div><div class="d"><b>¿La herramienta sirve para esa prueba?</b> Se propone la que deja a la vista lo que el verbo pide, y solo entre las que funcionan con su conexión, sus equipos y su modalidad.</div></div>
+        <div class="linea"><div class="t">¿Alcanza?</div><div class="d"><b>¿La prueba alcanza para demostrarlo?</b> Si usted pide «evaluar» y recibe un cuestionario de selección, el estudiante puede acertar sin haber evaluado nada. El semáforo le sugiere otra evidencia.</div></div>
+        <div class="linea"><div class="t">¿Cabe?</div><div class="d"><b>¿Cabe en el tiempo?</b> Diseñar un producto pide más minutos que reconocer un concepto. Si la sesión queda corta, se lo avisa.</div></div>
+      </div>
+      <div class="luces">
+        <div><i class="luz ok"></i><b>Verde</b> — sus decisiones encajan (4,7 o 5,0).</div>
+        <div><i class="luz medio"></i><b>Amarillo</b> — funciona, y mejora con un ajuste (4,2).</div>
+        <div><i class="luz mal" style="animation:none"></i><b>Rojo</b> — dos decisiones se contradicen (3,4 o 2,0).</div>
+      </div>
+      <p class="nota" style="margin-top:10px">La nota de arriba es el promedio de las cuatro. La calcula un conjunto de reglas, no una persona ni una inteligencia artificial: sirve para conversar sobre el diseño y no reemplaza su criterio.</p>
+
+      <h3 class="h3s">Un caso, antes y después</h3>
+      <div class="antes">
+        <div class="lado no"><h4><i class="luz mal" style="animation:none"></i>Antes</h4>
+          <p><b>Resultado:</b> «Que los estudiantes conozcan la célula».</p><p><b>Evidencia:</b> «Un cuestionario de opción múltiple».</p>
+          <p class="por">«Conocer» no se puede ver, y el cuestionario se puede responder sin comprender.</p>
+          <button class="btn" data-caso="antes">Probar este caso</button></div>
+        <div class="lado si"><h4><i class="luz ok"></i>Después</h4>
+          <p><b>Resultado:</b> «Explicar la función de cada organelo de una célula a partir de una micrografía».</p><p><b>Evidencia:</b> «La micrografía rotulada y un video corto donde justifican cada rótulo».</p>
+          <p class="por">Ahora hay algo que el estudiante hace, y un entregable que solo sale bien si entendió.</p>
+          <button class="btn" data-caso="despues">Probar este caso</button></div>
+      </div>
+
+      <h3 class="h3s">Los verbos que reconoce, del más sencillo al más exigente</h3>
       <div class="bloom" id="bloom"></div>
       <p class="nota" style="margin-top:18px">Fuentes: BID y ProFuturo (2024), <i>Aproximación a las competencias digitales de docentes en América Latina</i>; Anderson y Krathwohl (2001), revisión de la taxonomía de Bloom; OVA del módulo Metodologías y estrategias didácticas con TIC; Decreto 1330 de 2019.</p>
+    </div>
+  </section>
+
+  <section id="disciplinas">
+    <div class="wrap">
+      <div class="titulo"><span class="n">05</span><h2>¿Qué disciplinas pueden usarlo?</h2></div>
+      <p class="sub">Todas las que puedan decir qué hace el estudiante y qué entrega. El generador no lee el contenido de su materia: lee el verbo y el entregable, y eso existe en cualquier área. Toque un ejemplo para verlo cargado.</p>
+      <div class="banco" id="listaDisc"></div>
+      <div class="panel" style="margin-top:18px">
+        <div class="linea"><div class="t">Funciona mejor</div><div class="d">Cuando la clase termina en algo que se puede recibir: un informe, un cálculo, un prototipo, un video, una sustentación.</div></div>
+        <div class="linea"><div class="t">Le cuesta</div><div class="d">Con aprendizajes de actitud o de valores («apreciar», «sensibilizarse»), porque no dejan un entregable. El semáforo le pedirá que diga qué haría el estudiante para mostrarlo.</div></div>
+        <div class="linea"><div class="t">No conoce</div><div class="d">Las herramientas propias de cada profesión: simuladores clínicos, programas de diseño técnico, equipos de laboratorio. Propone herramientas generales; si usted tiene una mejor, la actividad y las rúbricas le siguen sirviendo.</div></div>
+        <div class="linea"><div class="t">Nivel</div><div class="d">Está pensado para pregrado y posgrado. Un docente de colegio puede usarlo igual: las reglas del verbo y la evidencia son las mismas.</div></div>
+      </div>
     </div>
   </section>
 
@@ -671,10 +738,11 @@ const HERRAMIENTAS={
              {n:'Cuestionario en PDF',t:'se descarga una vez y se responde sin conexión',nube:false,amb:'casa'}],
   crear:[{n:'Genially',t:'recurso interactivo con capas',nube:true},
          {n:'Canva',t:'pieza gráfica con plantillas',nube:true},
+         {n:'Grabadora y editor de audio (Audacity)',t:'pieza sonora grabada y editada en el equipo',nube:false,amb:'ambos',si:/p[oó]dcast|audio|sonor|radio/iu},
          {n:'Papelógrafo y marcadores',t:'producto visible construido en el aula',nube:false,amb:'aula'},
          {n:'Presentación sin conexión',t:'archivo de PowerPoint o Impress trabajado en el equipo',nube:false,amb:'casa'}],
-  simular:[{n:'Cuaderno de código (Colab)',t:'entorno con datos reales y ejecución paso a paso',nube:true},
-           {n:'Simulador PhET',t:'fenómeno manipulable con variables',nube:true},
+  simular:[{n:'Cuaderno de código (Colab)',t:'entorno con datos reales y ejecución paso a paso',nube:true,si:/c[oó]digo|program|algoritmo|modelo|clasificador|dataset|script/iu},
+           {n:'Simulador PhET',t:'fenómeno manipulable con variables',nube:true,si:/f[ií]sic|qu[ií]mic|circuito|fen[oó]meno|energ[ií]a|\bondas?\b|fuerzas?\b/iu},
            {n:'Hoja de cálculo compartida',t:'datos y fórmulas a la vista de todos',nube:true},
            {n:'Caso impreso con datos',t:'escenario en papel para analizar en grupo',nube:false,amb:'aula'},
            {n:'Hoja de cálculo sin conexión',t:'archivo con datos que se trabaja en el equipo',nube:false,amb:'casa'}],
@@ -795,9 +863,11 @@ function elegirHerramienta(d,nv,gap){
   const r=d.rae.toLowerCase();
   let grupo={recordar:'comprobar',comprender:'crear',aplicar:'simular',analizar:'colaborar',evaluar:'colaborar',crear:'crear'}[nv];
   if(nv==='comprender' && /explic|comunic|expres|expon/.test(r)) grupo='explicar';
-  if(['aplicar','analizar','evaluar'].includes(nv) && /audit|m[eé]tric|desagreg|dataset|datos|modelo|clasificador|algoritmo|estad[ií]stic|c[aá]lcul|program/.test(r)) grupo='simular';
+  if(['aplicar','analizar','evaluar'].includes(nv) && /audit|m[eé]tric|desagreg|dataset|datos|modelo|clasificador|algoritmo|estad[ií]stic|c[aá]lcul|program|financier|indicador|presupuest|contab/.test(r)) grupo='simular';
   const virtual=/virtual/.test(d.nivel), sinNube=d.restriccion!=='conectividad';
-  const todas=HERRAMIENTAS[grupo];
+  const ctx=d.area+' '+d.rae+' '+d.evidencia;
+  const orden=h=>!h.si?1:h.si.test(ctx)?0:2;      /* primero las que nombran su contexto */
+  const todas=[...HERRAMIENTAS[grupo]].sort((a,b)=>orden(a)-orden(b));
   let aptas=todas.filter(h=>!(sinNube&&h.nube));
   const porModalidad=aptas.filter(h=>h.nube || !virtual || h.amb!=='aula');
   const encaja=porModalidad.length>0;
@@ -1149,6 +1219,29 @@ $('importar').addEventListener('change',async e=>{
     escribirBanco(b); avisar(n?`Se importaron ${n} actividades.`:'No había actividades nuevas en ese archivo.');
   }catch(err){ avisar('Ese archivo no es un banco de actividades válido.'); }
   e.target.value='';
+});
+
+/* casos de ejemplo y disciplinas */
+const P='Pregrado · presencial';
+const CASOS={
+  antes:{area:'Biología · la célula',rae:'Que los estudiantes conozcan la célula.',evidencia:'Un cuestionario de opción múltiple.',nivel:P,duracion:60,restriccion:'conectividad'},
+  despues:{area:'Biología · la célula',rae:'Explicar la función de cada organelo de una célula a partir de una micrografía.',evidencia:'La micrografía rotulada y un video corto donde justifican cada rótulo.',nivel:P,duracion:60,restriccion:'conectividad'},
+  salud:{g:'Ciencias de la salud',area:'Enfermería · administración segura de medicamentos',rae:'Calcular la dosis pediátrica de un medicamento a partir del peso del paciente y verificar el resultado con los cinco correctos.',evidencia:'El ejercicio resuelto de tres casos clínicos nuevos, con el registro del procedimiento paso a paso.',nivel:P,duracion:60,restriccion:'conectividad'},
+  ing:{g:'Ingeniería y tecnología',...EJEMPLO},
+  derecho:{g:'Derecho y ciencias sociales',area:'Derecho · responsabilidad civil extracontractual',rae:'Argumentar la existencia de responsabilidad civil en un caso real a partir del daño, la culpa y el nexo causal.',evidencia:'Un escrito de dos páginas con la sustentación de cada elemento y la respuesta a una objeción.',nivel:P,duracion:90,restriccion:'conectividad'},
+  educ:{g:'Educación y humanidades',area:'Licenciatura en Educación Infantil · planeación de aula',rae:'Diseñar una secuencia didáctica de tres sesiones para el lenguaje oral en niños de cinco años.',evidencia:'El diseño de la secuencia en su segunda versión, con la justificación de los cambios tras la revisión de una colega.',nivel:P,duracion:120,restriccion:'conectividad'},
+  econ:{g:'Ciencias económicas y administrativas',area:'Contaduría · análisis financiero',rae:'Comparar la liquidez y el endeudamiento de dos empresas del mismo sector a partir de sus estados financieros.',evidencia:'Un cuadro comparativo de indicadores y un informe de una página que sustente cuál empresa es más sólida.',nivel:P,duracion:90,restriccion:'conectividad'},
+  artes:{g:'Artes, diseño y comunicación',area:'Comunicación Social · narrativa sonora',rae:'Producir un pódcast de tres minutos que cuente una historia local con inicio, conflicto y cierre.',evidencia:'El pódcast terminado, con el guion y una bitácora de las decisiones de edición.',nivel:P,duracion:120,restriccion:'sinconexion'},
+  basicas:{g:'Ciencias básicas',area:'Física · circuitos eléctricos',rae:'Resolver circuitos en serie y en paralelo con la ley de Ohm para predecir la corriente en cada rama.',evidencia:'El taller resuelto con tres circuitos nuevos, el registro del procedimiento y la comprobación en el simulador.',nivel:P,duracion:60,restriccion:'conectividad'}
+};
+$('listaDisc').innerHTML=Object.entries(CASOS).filter(([,c])=>c.g).map(([k,c])=>{ const A=analizar(c);
+  return `<article class="guardada"><div class="area">${esc(c.g)}</div><h4>${esc(c.area)}</h4><p>${esc(c.rae)}</p>
+    <div class="pie"><span class="nt" style="flex-basis:100%">${coma(A.nota)} · ${esc(A.H.herr.n)}</span><button class="btn" data-caso="${k}">Probar</button></div></article>`; }).join('');
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-caso]'); if(!b) return;
+  cargar(CASOS[b.dataset.caso]); ocultarAvisos(); generar(true);
+  $('hacer').scrollIntoView({behavior:'smooth'});
+  avisar('Ejemplo cargado. Cambie cualquier decisión para adaptarlo a su curso.');
 });
 
 /* tabla de verbos */
