@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="es" data-tema="oscuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generador de actividades con TIC · Una idea digital para mi área</title>
+<meta name="description" content="Herramienta que convierte cinco decisiones docentes en una ficha, una secuencia y una rúbrica. Funciona sin internet.">
+<style>
+  :root{
+    --radio:18px; --max:1120px;
+    --fuente:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  html[data-tema="oscuro"]{
+    --fondo:#06090f; --fondo2:#0b1120; --panel:rgba(255,255,255,.045); --panelSolido:#0e1526;
+    --borde:rgba(255,255,255,.12); --texto:#eef2fb; --suave:#9aa8c7; --tenue:#6b7a99;
+    --acento:#3ddbd9; --acento2:#a78bfa; --ok:#4ade80; --alerta:#f5b642; --sombra:0 24px 60px -40px rgba(0,0,0,.9);
+    --brillo:rgba(61,219,217,.16);
+  }
+  html[data-tema="claro"]{
+    --fondo:#f6f5f1; --fondo2:#ffffff; --panel:#ffffff; --panelSolido:#ffffff;
+    --borde:#dfe3ec; --texto:#101828; --suave:#4a5568; --tenue:#7b8794;
+    --acento:#0b7f7a; --acento2:#5b3fb5; --ok:#0f8a5f; --alerta:#8a5a00; --sombra:0 20px 50px -34px rgba(16,24,40,.45);
+    --brillo:rgba(11,127,122,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--fuente);background:var(--fondo);color:var(--texto);line-height:1.55;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .4s,color .4s}
+  #fondo3d{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.85}
+  .velo{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(60% 50% at 20% 0%,var(--brillo),transparent 70%),
+               radial-gradient(50% 45% at 85% 15%,rgba(167,139,250,.12),transparent 70%),
+               linear-gradient(180deg,transparent 60%,var(--fondo) 100%)}
+  .contenido{position:relative;z-index:1}
+  .wrap{width:min(var(--max),calc(100% - clamp(20px,5vw,60px)));margin:0 auto}
+
+  /* barra */
+  .barra{position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);
+    background:color-mix(in srgb,var(--fondo) 78%,transparent);border-bottom:1px solid var(--borde)}
+  .barra .in{display:flex;align-items:center;gap:14px;padding:12px 0}
+  .marca{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:14.5px}
+  .marca i{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--acento),var(--acento2));
+    box-shadow:0 0 16px var(--acento)}
+  .barra nav{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .btn{font:inherit;font-size:13px;border:1px solid var(--borde);background:var(--panel);color:var(--texto);
+    padding:8px 14px;border-radius:999px;cursor:pointer;transition:.2s;white-space:nowrap}
+  .btn:hover{border-color:var(--acento);color:var(--acento)}
+  .btn.primario{background:linear-gradient(135deg,var(--acento),var(--acento2));border:none;color:#04121a;font-weight:800}
+  html[data-tema="claro"] .btn.primario{color:#fff}
+  .btn.primario:hover{filter:brightness(1.08);color:#04121a}
+  html[data-tema="claro"] .btn.primario:hover{color:#fff}
+  .btn.icono{padding:8px 11px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* hero */
+  header{padding:clamp(54px,9vw,110px) 0 clamp(34px,5vw,60px);position:relative}
+  .kicker{display:inline-flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--alerta);border:1px solid color-mix(in srgb,var(--alerta) 45%,transparent);
+    background:color-mix(in srgb,var(--alerta) 10%,transparent);padding:7px 13px;border-radius:999px;font-weight:700}
+  h1{font-size:clamp(30px,5.4vw,64px);line-height:1.04;letter-spacing:-.035em;font-weight:800;margin:20px 0 16px;max-width:22ch}
+  h1 .g{background:linear-gradient(100deg,var(--acento),var(--acento2) 60%,var(--alerta));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:clamp(15px,1.8vw,19px);color:var(--suave);max-width:62ch}
+  .hero-datos{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;list-style:none}
+  .hero-datos li{font-size:12.5px;color:var(--suave);border:1px solid var(--borde);background:var(--panel);
+    padding:8px 13px;border-radius:999px}
+  .hero-datos b{color:var(--texto)}
+
+  /* tarjeta 3D */
+  .escena{perspective:1200px;margin-top:38px}
+  .tarjeta3d{max-width:560px;border-radius:22px;padding:22px 24px;border:1px solid var(--borde);
+    background:linear-gradient(140deg,var(--panelSolido),color-mix(in srgb,var(--acento) 8%,var(--panelSolido)));
+    transform-style:preserve-3d;transition:transform .18s ease-out;box-shadow:var(--sombra)}
+  .tarjeta3d h4{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--acento);margin-bottom:8px}
+  .tarjeta3d p{font-size:14.5px;color:var(--suave)}
+  .tarjeta3d p b{color:var(--texto)}
+
+  /* pasos */
+  section{padding:clamp(34px,5vw,66px) 0}
+  .titulo{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+  .titulo .n{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--tenue);border:1px solid var(--borde);
+    padding:4px 9px;border-radius:6px}
+  h2{font-size:clamp(21px,3vw,32px);letter-spacing:-.02em}
+  .sub{color:var(--suave);font-size:14.5px;margin:8px 0 26px;max-width:76ch}
+
+  .progreso{display:flex;gap:6px;margin:18px 0 26px}
+  .progreso i{height:4px;flex:1;border-radius:2px;background:var(--borde);transition:.3s}
+  .progreso i.on{background:linear-gradient(90deg,var(--acento),var(--acento2))}
+
+  .formulario{display:grid;gap:18px}
+  .campo{border:1px solid var(--borde);background:var(--panelSolido);border-radius:var(--radio);padding:18px 20px;
+    transition:.25s;position:relative;overflow:hidden}
+  .campo:focus-within{border-color:var(--acento);box-shadow:0 0 0 3px color-mix(in srgb,var(--acento) 18%,transparent)}
+  .campo .et{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .campo .et span{font-size:11px;font-weight:800;color:var(--acento);border:1px solid color-mix(in srgb,var(--acento) 40%,transparent);
+    border-radius:6px;padding:2px 7px;letter-spacing:.08em}
+  .campo .et label{font-size:14.5px;font-weight:700}
+  .campo .ayuda{font-size:12.5px;color:var(--tenue);margin-top:8px}
+  input[type=text],textarea,select{width:100%;font:inherit;font-size:14.5px;color:var(--texto);
+    background:color-mix(in srgb,var(--fondo2) 70%,transparent);border:1px solid var(--borde);
+    border-radius:11px;padding:11px 13px;outline:none;resize:vertical;transition:.2s}
+  input:focus,textarea:focus,select:focus{border-color:var(--acento)}
+  textarea{min-height:74px}
+  .opciones{display:flex;flex-wrap:wrap;gap:8px}
+  .opcion{font:inherit;font-size:13px;border:1px solid var(--borde);background:color-mix(in srgb,var(--fondo2) 60%,transparent);
+    color:var(--suave);padding:8px 13px;border-radius:999px;cursor:pointer;transition:.18s}
+  .opcion:hover{border-color:var(--acento);color:var(--texto)}
+  .opcion.on{background:var(--acento);border-color:var(--acento);color:#04121a;font-weight:800}
+  html[data-tema="claro"] .opcion.on{color:#fff}
+
+  .acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;align-items:center}
+  .nota{font-size:12.5px;color:var(--tenue)}
+
+  /* resultado */
+  #resultado{display:none}
+  #resultado.visible{display:block;animation:subir .5s ease}
+  @keyframes subir{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .pestanas{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .pestanas button{font:inherit;font-size:13px;border:1px solid var(--borde);background:transparent;color:var(--suave);
+    padding:8px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+  .pestanas button.on{background:var(--texto);color:var(--fondo);border-color:var(--texto);font-weight:700}
+  .panel{border:1px solid var(--borde);background:var(--panelSolido);border-radius:var(--radio);padding:22px 24px;box-shadow:var(--sombra)}
+  .panel h3{font-size:16px;margin-bottom:14px;letter-spacing:-.01em}
+  .ficha{display:grid;gap:12px}
+  .ficha .item{border-left:3px solid var(--acento);padding:10px 0 10px 14px;background:color-mix(in srgb,var(--acento) 5%,transparent);
+    border-radius:0 10px 10px 0}
+  .ficha .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acento);font-weight:800;margin-bottom:4px}
+  .ficha .v{font-size:14.5px;color:var(--texto)}
+  .ficha .v small{display:block;color:var(--tenue);font-size:12.5px;margin-top:4px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--acento);
+    padding:8px 10px;border-bottom:1px solid var(--borde)}
+  td{padding:9px 10px;border-bottom:1px solid color-mix(in srgb,var(--borde) 60%,transparent);color:var(--suave);vertical-align:top}
+  td b{color:var(--texto)}
+  tr:last-child td{border-bottom:none}
+
+  .linea{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px dashed var(--borde)}
+  .linea:last-child{border-bottom:none}
+  .linea .t{font-family:var(--mono);font-size:12.5px;color:var(--acento);min-width:64px;font-weight:700}
+  .linea .d{font-size:14px;color:var(--suave)}
+  .linea .d b{color:var(--texto)}
+
+  .chip{display:inline-block;font-size:11.5px;border:1px solid var(--borde);border-radius:999px;padding:3px 9px;color:var(--suave);margin:0 4px 4px 0}
+
+  footer{border-top:1px solid var(--borde);padding:28px 0 44px;color:var(--tenue);font-size:12.5px}
+  footer .in{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer a{color:var(--acento);text-decoration:none}
+
+  @media (max-width:760px){
+    .barra nav .btn.t {display:none}
+    h1{font-size:34px}
+    .pestanas button{font-size:12px;padding:7px 11px}
+  }
+  @media print{
+    #fondo3d,.velo,.barra,header,footer,.acciones,.pestanas,#formulario{display:none!important}
+    body{background:#fff;color:#101828}
+    .panel{border:none;box-shadow:none;padding:0}
+    #resultado{display:block!important}
+    .pestana-panel{display:block!important;break-inside:avoid;margin-bottom:22px}
+  }
+</style>
+</head>
+<body>
+<canvas id="fondo3d"></canvas>
+<div class="velo"></div>
+
+<div class="contenido">
+  <div class="barra">
+    <div class="wrap in">
+      <div class="marca"><i></i> Generador de actividades con TIC</div>
+      <nav>
+        <button class="btn t" onclick="document.getElementById('hacer').scrollIntoView({behavior:'smooth'})">Crear la mía</button>
+        <button class="btn t" onclick="document.getElementById('como').scrollIntoView({behavior:'smooth'})">Cómo funciona</button>
+        <button class="btn icono" id="tema" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
+      </nav>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap">
+      <span class="kicker">Módulo TIC · 72P05 · Actividad «Una idea digital para mi área»</span>
+      <h1>Cinco decisiones.<br>Una <span class="g">actividad</span> que sí evalúa.</h1>
+      <p class="lead">La mayoría elige primero la herramienta y después inventa la actividad. Aquí es al revés: usted declara qué quiere que aprendan y qué evidencia va a aceptar, y la herramienta sale de ahí. Sin internet, sin registro, sin instalar nada.</p>
+      <ul class="hero-datos">
+        <li><b>34 %</b> de los docentes de América Latina alcanza el nivel básico en creación de recursos digitales</li>
+        <li>BID y ProFuturo (2024) · 28.358 docentes</li>
+        <li>Funciona sin conexión</li>
+      </ul>
+
+      <div class="escena">
+        <div class="tarjeta3d" id="tarjeta3d">
+          <h4>La regla del generador</h4>
+          <p>Si usted no puede decir <b>qué evidencia aceptaría como prueba de aprendizaje</b>, no hay herramienta que lo salve. El generador se niega a producir la ficha sin ese campo.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="hacer">
+    <div class="wrap">
+      <div class="titulo"><span class="n">01</span><h2>Las cinco decisiones</h2></div>
+      <p class="sub">Complete de arriba hacia abajo. Cada campo alimenta la ficha, la secuencia y la rúbrica.</p>
+      <div class="progreso" id="progreso"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+
+      <div class="formulario" id="formulario">
+        <div class="campo">
+          <div class="et"><span>1</span><label for="area">Área y tema que quiere enseñar</label></div>
+          <input type="text" id="area" placeholder="Ej.: Ingeniería de Sistemas · evaluación de modelos de IA" autocomplete="off">
+          <div class="ayuda">Entre más concreto el tema, mejor sale la actividad.</div>
+        </div>
+
+        <div class="campo">
+          <div class="et"><span>2</span><label for="rae">Resultado de aprendizaje</label></div>
+          <textarea id="rae" placeholder="Ej.: Auditar un clasificador identificando disparidades de desempeño entre subgrupos y justificar una corrección con criterios éticos."></textarea>
+          <div class="ayuda">Empiece con un verbo observable: identificar, analizar, evaluar, diseñar, construir.</div>
+        </div>
+
+        <div class="campo">
+          <div class="et"><span>3</span><label for="evidencia">¿Qué evidencia aceptaría como prueba de que aprendieron?</label></div>
+          <textarea id="evidencia" placeholder="Ej.: La matriz de análisis con las métricas desagregadas y un plan de corrección de una página."></textarea>
+          <div class="ayuda">Este es el campo que casi todos dejan vacío. Sin él no hay evaluación, solo actividad.</div>
+        </div>
+
+        <div class="campo">
+          <div class="et"><span>4</span><label>Nivel y modalidad</label></div>
+          <div class="opciones" id="nivel">
+            <button class="opcion on" data-v="Pregrado · presencial">Pregrado · presencial</button>
+            <button class="opcion" data-v="Pregrado · virtual">Pregrado · virtual</button>
+            <button class="opcion" data-v="Posgrado · virtual">Posgrado · virtual</button>
+            <button class="opcion" data-v="Posgrado · híbrido">Posgrado · híbrido</button>
+          </div>
+          <div class="ayuda" style="margin-top:12px">Duración de la sesión</div>
+          <div class="opciones" id="duracion">
+            <button class="opcion on" data-v="60">60 minutos</button>
+            <button class="opcion" data-v="90">90 minutos</button>
+            <button class="opcion" data-v="120">120 minutos</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <div class="et"><span>5</span><label>Restricciones reales del aula</label></div>
+          <div class="opciones" id="restriccion">
+            <button class="opcion on" data-v="conectividad">Conectividad estable</button>
+            <button class="opcion" data-v="sinconexion">Conectividad inestable</button>
+            <button class="opcion" data-v="sinequipos">Sin equipos por estudiante</button>
+          </div>
+          <div class="ayuda">El generador descarta las herramientas que no sobreviven a esa restricción.</div>
+        </div>
+      </div>
+
+      <div class="acciones">
+        <button class="btn primario" id="generar">Generar la actividad</button>
+        <button class="btn" id="ejemplo">Cargar un ejemplo</button>
+        <button class="btn" id="limpiar">Limpiar</button>
+        <span class="nota" id="estado">Todo queda en su equipo. Nada se envía a internet.</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultado">
+    <div class="wrap">
+      <div class="titulo"><span class="n">02</span><h2>Lo que produce</h2></div>
+      <p class="sub">Cuatro piezas derivadas de sus cinco decisiones. Ninguna es inventada: cada una se rastrea hasta un campo.</p>
+      <div class="pestanas" id="pestanas">
+        <button class="on" data-p="ficha">Ficha de 5 campos</button>
+        <button data-p="secuencia">Secuencia</button>
+        <button data-p="rubrica">Rúbrica</button>
+        <button data-p="trazabilidad">Trazabilidad</button>
+      </div>
+
+      <div class="panel pestana-panel" id="p-ficha">
+        <h3>Ficha para la pizarra virtual</h3>
+        <div class="ficha" id="salida-ficha"></div>
+      </div>
+
+      <div class="panel pestana-panel" id="p-secuencia" style="display:none">
+        <h3>Secuencia de la sesión</h3>
+        <div id="salida-secuencia"></div>
+      </div>
+
+      <div class="panel pestana-panel" id="p-rubrica" style="display:none">
+        <h3>Rúbrica analítica</h3>
+        <div id="salida-rubrica"></div>
+      </div>
+
+      <div class="panel pestana-panel" id="p-trazabilidad" style="display:none">
+        <h3>Por qué esta herramienta y no otra</h3>
+        <div id="salida-trazabilidad"></div>
+      </div>
+
+      <div class="acciones">
+        <button class="btn primario" id="imprimir">Descargar en PDF</button>
+        <button class="btn" id="copiar">Copiar la ficha</button>
+        <span class="nota" id="copiado"></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="como">
+    <div class="wrap">
+      <div class="titulo"><span class="n">03</span><h2>Cómo funciona</h2></div>
+      <p class="sub">Tres reglas, ninguna negociable.</p>
+      <div class="panel">
+        <div class="linea"><div class="t">Regla 1</div><div class="d"><b>La evidencia manda.</b> El verbo del resultado de aprendizaje define qué tipo de prueba se acepta: una matriz, un informe, una defensa oral o una prueba de transferencia.</div></div>
+        <div class="linea"><div class="t">Regla 2</div><div class="d"><b>La restricción descarta.</b> Si el aula no tiene conectividad, quedan fuera las herramientas que dependen de la nube. La actividad se sostiene sin ellas.</div></div>
+        <div class="linea"><div class="t">Regla 3</div><div class="d"><b>La herramienta se justifica.</b> No se elige porque está de moda, sino porque produce exactamente la evidencia declarada. Si no la produce, se reemplaza.</div></div>
+      </div>
+      <p class="nota" style="margin-top:18px">Fuentes: BID y ProFuturo (2024), <i>Aproximación a las competencias digitales de docentes en América Latina</i>; OVA del módulo Metodologías y estrategias didácticas con TIC; Decreto 1330 de 2019.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap in">
+      <span>Generador de actividades con TIC · Heyler Fabio Guaza Lesmes · Especialización en Docencia Universitaria</span>
+      <span>Un solo archivo · funciona sin conexión · 2026</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   1 · FONDO 3D (canvas, sin librerías)
+   ============================================================ */
+(function(){
+  const c=document.getElementById('fondo3d'), x=c.getContext('2d');
+  let W,H,N=260, puntos=[], giro=0, mouse={x:0,y:0};
+  function medir(){ W=c.width=innerWidth*devicePixelRatio; H=c.height=innerHeight*devicePixelRatio;
+    c.style.width=innerWidth+'px'; c.style.height=innerHeight+'px'; }
+  function crear(){
+    puntos=[];
+    const R=1.35, r=0.55;
+    for(let i=0;i<N;i++){
+      const u=Math.random()*Math.PI*2, v=Math.random()*Math.PI*2;
+      puntos.push({u,v,z:Math.random()});
+    }
+  }
+  addEventListener('mousemove',e=>{ mouse.x=(e.clientX/innerWidth-.5); mouse.y=(e.clientY/innerHeight-.5); });
+  function tema(){ return document.documentElement.dataset.tema; }
+  function dibujar(){
+    const oscuro = tema()==='oscuro';
+    x.clearRect(0,0,W,H);
+    giro+=0.0016;
+    const R=Math.min(W,H)*0.34, esc=1.6;
+    for(const p of puntos){
+      const u=p.u+giro, v=p.v+giro*1.3;
+      const X=(R+0.55*Math.cos(v))*Math.cos(u);
+      const Y=(R+0.55*Math.cos(v))*Math.sin(u)*0.55;
+      const Z=0.55*Math.sin(v)+Math.cos(u*2)*0.18;
+      const persp=esc/(esc+Z*1.2);
+      const px=W/2+ (X+mouse.x*70)*persp + Math.sin(u*3+giro)*8;
+      const py=H/2+ (Y+mouse.y*50)*persp;
+      const tam=Math.max(.6,1.9*persp);
+      const alfa=(oscuro?.38:.28)*persp;
+      x.beginPath();
+      x.fillStyle = oscuro
+        ? `rgba(${90+120*persp},${200+40*persp},${215},${alfa})`
+        : `rgba(${20+60*persp},${110},${125},${alfa*1.15})`;
+      x.arc(px,py,tam,0,6.283); x.fill();
+    }
+    requestAnimationFrame(dibujar);
+  }
+  medir(); crear(); dibujar();
+  addEventListener('resize',()=>{medir();crear();});
+})();
+
+/* ============================================================
+   2 · TEMA CLARO / OSCURO
+   ============================================================ */
+const raiz=document.documentElement;
+const btnTema=document.getElementById('tema');
+function aplicarTema(t){ raiz.dataset.tema=t; btnTema.textContent = t==='oscuro' ? '☀' : '◐';
+  btnTema.title = t==='oscuro' ? 'Cambiar a claro' : 'Cambiar a oscuro';
+  try{ localStorage.setItem('tic-tema',t); }catch(e){} }
+try{ const g=localStorage.getItem('tic-tema'); if(g) aplicarTema(g); }catch(e){}
+btnTema.addEventListener('click',()=>aplicarTema(raiz.dataset.tema==='oscuro'?'claro':'oscuro'));
+
+/* ============================================================
+   3 · TARJETA 3D CON EL MOUSE
+   ============================================================ */
+(function(){
+  const t=document.getElementById('tarjeta3d');
+  addEventListener('mousemove',e=>{
+    const rx=(e.clientY/innerHeight-.5)*-8, ry=(e.clientX/innerWidth-.5)*10;
+    t.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg) translateZ(6px)`;
+  });
+})();
+
+/* ============================================================
+   4 · CATÁLOGO Y MOTOR DE DECISIÓN
+   ============================================================ */
+const HERRAMIENTAS = {
+  colaborar:  [{n:'Padlet', t:'muro colaborativo con notas', nube:true},
+               {n:'Miro', t:'pizarra infinita para construir en grupo', nube:true},
+               {n:'Google Workspace', t:'documento compartido en tiempo real', nube:true}],
+  evaluar:    [{n:'Kahoot', t:'cuestionario con puntaje inmediato', nube:true},
+               {n:'Wayground', t:'evaluación interactiva con datos por pregunta', nube:true},
+               {n:'Google Forms', t:'formulario con respuestas exportables', nube:true},
+               {n:'Tarjetas físicas', t:'respuesta rápida sin equipos', nube:false}],
+  crear:      [{n:'Genially', t:'infografía o recurso interactivo', nube:true},
+               {n:'Canva', t:'pieza gráfica con plantillas', nube:true},
+               {n:'Marcador y papelógrafo', t:'producto visible en el aula', nube:false}],
+  simular:    [{n:'Cuaderno de código (Colab)', t:'entorno con datos reales y ejecución', nube:true},
+               {n:'Simulador PhET', t:'fenómeno manipulable', nube:true},
+               {n:'Caso impreso', t:'escenario en papel con datos', nube:false}],
+  video:      [{n:'Edpuzzle', t:'video con preguntas incrustadas', nube:true},
+               {n:'Grabación con el celular', t:'video corto hecho en el aula', nube:false}],
+  organizar:  [{n:'Moodle', t:'aula virtual con entregas y retroalimentación', nube:true},
+               {n:'Notion', t:'espacio de trabajo con estructura', nube:true},
+               {n:'Carpeta compartida', t:'entrega ordenada sin plataforma', nube:false}]
+};
+
+function clasificar(rae){
+  const r=rae.toLowerCase();
+  // 'auditar' con datos o modelos pide un entorno de análisis, no un cuestionario
+  if(/\b(audit|metric|métric|desagreg|dataset|datos|modelo|clasificador|algoritmo)/.test(r)) return 'simular';
+  if(/\b(evalu|juzg|critic|decid|valor)/.test(r)) return 'evaluar';
+  if(/\b(diseñ|crea|constru|elabor|produc|formul)/.test(r)) return 'crear';
+  if(/\b(analiz|compar|diagnostic|desagreg|interpret)/.test(r)) return 'simular';
+  if(/\b(aplic|resuelv|ejecut|program|calcul)/.test(r)) return 'simular';
+  if(/\b(explic|argument|justific|comunic|expres)/.test(r)) return 'video';
+  if(/\b(identific|reconoc|defin|diferenci|clasific)/.test(r)) return 'evaluar';
+  return 'crear';
+}
+
+function elegir(bucket, restriccion){
+  const lista=HERRAMIENTAS[bucket] || HERRAMIENTAS.crear;
+  const local=lista.filter(h=>!h.nube);
+  if(restriccion==='sinconexion' || restriccion==='sinequipos') return local[0] || lista[lista.length-1];
+  return lista[0];
+}
+
+function tiempos(total){
+  if(total===60) return [{t:'Inicio',m:10},{t:'Desarrollo',m:30},{t:'Cierre',m:20}];
+  if(total===90) return [{t:'Inicio',m:15},{t:'Desarrollo',m:50},{t:'Cierre',m:25}];
+  return [{t:'Inicio',m:20},{t:'Desarrollo',m:65},{t:'Cierre',m:35}];
+}
+
+/* ============================================================
+   5 · ESTADO Y GENERACIÓN
+   ============================================================ */
+const estado={ nivel:'Pregrado · presencial', duracion:60, restriccion:'conectividad' };
+
+document.querySelectorAll('#nivel .opcion').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#nivel .opcion').forEach(o=>o.classList.remove('on'));
+  b.classList.add('on'); estado.nivel=b.dataset.v; marcar(1);
+}));
+document.querySelectorAll('#duracion .opcion').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#duracion .opcion').forEach(o=>o.classList.remove('on'));
+  b.classList.add('on'); estado.duracion=parseInt(b.dataset.v); marcar(3);
+}));
+document.querySelectorAll('#restriccion .opcion').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#restriccion .opcion').forEach(o=>o.classList.remove('on'));
+  b.classList.add('on'); estado.restriccion=b.dataset.v; marcar(4);
+}));
+
+function marcar(avance){
+  const barras=document.querySelectorAll('#progreso i');
+  barras.forEach((b,i)=>b.classList.toggle('on', i<=avance));
+}
+['area','rae','evidencia'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const llenos=['area','rae','evidencia'].filter(x=>document.getElementById(x).value.trim().length>8).length;
+    marcar(llenos-1+ (llenos>0?0:0));
+  });
+});
+
+function generar(){
+  const area=document.getElementById('area').value.trim() || 'su área disciplinar';
+  const rae=document.getElementById('rae').value.trim();
+  const evidencia=document.getElementById('evidencia').value.trim();
+
+  if(rae.length<12 || evidencia.length<12){
+    document.getElementById('estado').textContent='Faltan dos campos: el resultado de aprendizaje y la evidencia. Sin ellos no se genera.';
+    document.getElementById('estado').style.color='var(--alerta)';
+    document.getElementById('rae').focus();
+    return;
+  }
+  document.getElementById('estado').textContent='Generado a partir de sus cinco decisiones.';
+  document.getElementById('estado').style.color='var(--ok)';
+
+  const bucket=clasificar(rae);
+  const herr=elegir(bucket, estado.restriccion);
+  const bloques=tiempos(estado.duracion);
+  const sesion=estado.duracion;
+
+  /* --- ficha de 5 campos --- */
+  const ficha=[
+    {k:'1 · ¿Qué queremos que aprendan?', v: rae, s:'Resultado de aprendizaje declarado.'},
+    {k:'2 · Actividad propuesta', v: `${bloques.map(b=>`${b.t} (${b.m} min)`).join(' · ')}. El estudiante produce la evidencia declarada trabajando en ${estado.nivel.toLowerCase()}.`},
+    {k:'3 · Herramienta digital', v: `<b>${herr.n}</b> — ${herr.t}.`, s: herr.nube ? 'Requiere conexión.' : 'Funciona sin conexión.'},
+    {k:'4 · ¿Por qué esa herramienta ayuda al objetivo?', v: `Porque produce exactamente la evidencia declarada: ${evidencia.charAt(0).toLowerCase()+evidencia.slice(1)}. No se eligió por ser llamativa, sino por su capacidad de registrar el proceso y no solo el resultado.`},
+    {k:'5 · ¿Qué evidencia podría demostrar que aprendieron?', v: evidencia, s:`Se valora con la rúbrica de la pestaña siguiente.`}
+  ];
+  document.getElementById('salida-ficha').innerHTML=ficha.map(f=>
+    `<div class="item"><div class="k">${f.k}</div><div class="v">${f.v}${f.s?`<small>${f.s}</small>`:''}</div></div>`).join('');
+
+  /* --- secuencia --- */
+  const detalle={
+    'Inicio':`Se presenta el reto y el criterio de logro. Cada estudiante escribe en una nota qué cree que debe demostrar al final.`,
+    'Desarrollo':`Trabajo en ${estado.restriccion==='sinequipos'?'parejas con un solo dispositivo':'parejas'} sobre ${herr.n}. Se registran las decisiones intermedias: qué intentaron, qué falló, qué cambiaron.`,
+    'Cierre':`Puesta en común de tres minutos por pareja y contraste con el criterio de logro. Cada uno escribe qué haría distinto.`
+  };
+  const sec=bloques.map(b=>`<div class="linea"><div class="t">${b.m} min</div><div class="d"><b>${b.t}.</b> ${detalle[b.t]}</div></div>`).join('');
+  document.getElementById('salida-secuencia').innerHTML =
+    `<p style="font-size:13.5px;color:var(--suave);margin-bottom:8px">Sesión de ${sesion} minutos · ${estado.nivel}</p>`+sec+
+    `<div class="linea"><div class="t">Total</div><div class="d"><b>${bloques.reduce((a,b)=>a+b.m,0)} minutos</b> · herramienta: ${herr.n}</div></div>`;
+
+  /* --- rúbrica --- */
+  const niveles=['Excelente 5.0','Sobresaliente 4.6–4.9','Bueno 4.0–4.5','Aceptable 3.0–3.9','No aceptable 1.0–2.9'];
+  const criterios=[
+    { c:'Pertinencia del resultado',
+      d:'El resultado de aprendizaje es observable y se corresponde con la evidencia pedida.',
+      n:['Resultado observable de alto nivel y evidencia que lo demuestra sin ambigüedad.',
+         'Resultado observable y evidencia pertinente, con algún aspecto por precisar.',
+         'Resultado observable, pero la evidencia cubre solo una parte de lo declarado.',
+         'Resultado formulado de forma general; la evidencia lo roza sin demostrarlo.',
+         'Resultado no observable o evidencia sin relación con lo que dice evaluar.'] },
+    { c:'Coherencia actividad · herramienta',
+      d:'La herramienta produce la evidencia declarada; no se eligió por novedad.',
+      n:['La herramienta produce exactamente la evidencia y se justifica por el proceso que registra.',
+         'La herramienta produce la evidencia; la justificación es suficiente aunque no explora alternativas.',
+         'La herramienta sirve, pero se eligió por familiaridad antes que por la evidencia.',
+         'La herramienta es llamativa y la evidencia se obtiene a pesar de ella.',
+         'La herramienta se eligió por moda y no produce la evidencia declarada.'] },
+    { c:'Calidad de la evidencia',
+      d:'La evidencia permite distinguir comprensión de reproducción.',
+      n:['La evidencia obliga a mostrar el proceso y justificar decisiones; no se resuelve copiando.',
+         'La evidencia muestra proceso en la mayoría de los casos, con algún punto reproducible.',
+         'La evidencia muestra el producto final y parte del proceso.',
+         'La evidencia se concentra en el producto; el proceso queda invisible.',
+         'La evidencia se puede producir sin comprender: es copiable o automatizable.'] },
+    { c:'Viabilidad en el aula',
+      d:'La actividad cabe en el tiempo y sobrevive a las restricciones declaradas.',
+      n:['Cabe holgadamente en el tiempo, sobrevive a la restricción y deja margen para retroalimentar.',
+         'Cabe en el tiempo y respeta la restricción con ajustes menores.',
+         'Cabe con esfuerzo; alguna parte depende de condiciones no previstas.',
+         'Requiere más tiempo o recursos de los declarados.',
+         'No es ejecutable con el tiempo ni con los recursos del curso.'] }
+  ];
+  const filas=criterios.map(k=>`<tr><td><b>${k.c}</b><br><span style="font-size:12px;color:var(--tenue)">${k.d}</span></td>
+    ${k.n.map(x=>`<td style="font-size:12.5px">${x}</td>`).join('')}</tr>`).join('');
+  document.getElementById('salida-rubrica').innerHTML = `
+    <table><thead><tr><th style="width:20%">Criterio</th>${niveles.map(n=>`<th>${n}</th>`).join('')}</tr></thead>
+    <tbody>${filas}</tbody></table>
+    <p class="nota" style="margin-top:12px">Escala del módulo. Se aplica sobre la evidencia, no sobre la herramienta.</p>`;
+
+  /* --- trazabilidad --- */
+  const porQue = estado.restriccion==='conectividad'
+    ? 'Con conectividad estable se prioriza la herramienta que mejor registra el proceso.'
+    : 'Con conectividad inestable o sin equipos, se descartan las herramientas en la nube: la actividad debe sostenerse sin ellas.';
+  document.getElementById('salida-trazabilidad').innerHTML=`
+    <div class="linea"><div class="t">Verbo</div><div class="d">El resultado de aprendizaje se clasificó como <b>${bucket}</b>, y eso define el tipo de herramienta.</div></div>
+    <div class="linea"><div class="t">Restricción</div><div class="d">${porQue}</div></div>
+    <div class="linea"><div class="t">Alternativas</div><div class="d">${(HERRAMIENTAS[bucket]||[]).map(h=>`<span class="chip">${h.n}</span>`).join('')}</div></div>
+    <div class="linea"><div class="t">Descartadas</div><div class="d">${(HERRAMIENTAS[bucket]||[]).filter(h=>h.nube && estado.restriccion!=='conectividad').map(h=>`<span class="chip">${h.n} · requiere conexión</span>`).join('') || 'Ninguna: la restricción permite todas.'}</div></div>
+    <div class="linea"><div class="t">Evidencia</div><div class="d"><b>${evidencia}</b></div></div>`;
+
+  document.getElementById('resultado').classList.add('visible');
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ============================================================
+   6 · ACCIONES
+   ============================================================ */
+document.getElementById('generar').addEventListener('click',generar);
+
+document.getElementById('ejemplo').addEventListener('click',()=>{
+  document.getElementById('area').value='Ingeniería de Sistemas · evaluación de modelos de IA';
+  document.getElementById('rae').value='Auditar un clasificador identificando disparidades de desempeño entre subgrupos y justificar una corrección con criterios éticos.';
+  document.getElementById('evidencia').value='La matriz de análisis con las métricas desglosadas por subgrupo y un plan de corrección de una página.';
+  marcar(4); generar();
+});
+
+document.getElementById('limpiar').addEventListener('click',()=>{
+  ['area','rae','evidencia'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('resultado').classList.remove('visible');
+  document.getElementById('estado').textContent='Todo queda en su equipo. Nada se envía a internet.';
+  document.getElementById('estado').style.color='var(--tenue)';
+  marcar(0);
+});
+
+document.querySelectorAll('#pestanas button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#pestanas button').forEach(o=>o.classList.remove('on'));
+  b.classList.add('on');
+  ['ficha','secuencia','rubrica','trazabilidad'].forEach(p=>{
+    document.getElementById('p-'+p).style.display = (p===b.dataset.p)?'block':'none';
+  });
+}));
+
+document.getElementById('imprimir').addEventListener('click',()=>window.print());
+
+document.getElementById('copiar').addEventListener('click',async()=>{
+  const texto=[...document.querySelectorAll('#salida-ficha .item')].map(i=>
+    i.querySelector('.k').textContent+': '+i.querySelector('.v').textContent).join('\n');
+  try{ await navigator.clipboard.writeText(texto);
+    document.getElementById('copiado').textContent='Ficha copiada.';
+  }catch(e){ document.getElementById('copiado').textContent='No se pudo copiar en este navegador.'; }
+  setTimeout(()=>document.getElementById('copiado').textContent='',2500);
+});
+</script>
+</body>
+</html>
