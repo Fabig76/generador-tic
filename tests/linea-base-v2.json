@@ -1,0 +1,25 @@
+{
+ "nota_v1": {
+  "antes": 2.7,
+  "despues": 5,
+  "salud": 4.9,
+  "ing": 4.7,
+  "derecho": 4.9,
+  "educ": 4.9,
+  "econ": 4.9,
+  "artes": 4.9,
+  "basicas": 4.9
+ },
+ "nota_v2": {
+  "antes": 2.7,
+  "despues": 4.7,
+  "salud": 4.6,
+  "ing": 4.5,
+  "derecho": 4.6,
+  "educ": 4.6,
+  "econ": 4.6,
+  "artes": 4.6,
+  "basicas": 4.6
+ },
+ "nota": "La v2 añade un quinto criterio (accesibilidad). El descenso es intencional y está documentado en CHANGELOG."
+}
