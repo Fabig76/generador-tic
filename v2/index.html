@@ -1,0 +1,1390 @@
+<!doctype html>
+<html lang="es" data-tema="oscuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generador de actividades con TIC · Una idea digital para mi área</title>
+<meta name="description" content="Cinco decisiones docentes se convierten en una ficha, una secuencia y dos rúbricas, con un semáforo que califica la alineación en vivo. Funciona sin internet.">
+<style>
+  :root{
+    --radio:18px; --max:1180px;
+    --fuente:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  html[data-tema="oscuro"]{
+    --fondo:#05070d; --fondo2:#0a1020; --panel:rgba(255,255,255,.05); --panelSolido:#0d1424;
+    --borde:rgba(255,255,255,.12); --texto:#eef2fb; --suave:#a3b0cc; --tenue:#7483a3;
+    --acento:#3ddbd9; --acento2:#a78bfa; --ok:#4ade80; --alerta:#f5b642; --mal:#fb7185;
+    --sombra:0 30px 70px -40px rgba(0,0,0,.95); --brillo:rgba(61,219,217,.18); --sobre:#04121a;
+  }
+  html[data-tema="claro"]{
+    --fondo:#f5f4ef; --fondo2:#ffffff; --panel:rgba(255,255,255,.8); --panelSolido:#ffffff;
+    --borde:#dcdfe9; --texto:#101828; --suave:#475467; --tenue:#7b8794;
+    --acento:#0b7f7a; --acento2:#5b3fb5; --ok:#0f8a5f; --alerta:#9a6200; --mal:#c2264b;
+    --sombra:0 24px 55px -34px rgba(16,24,40,.45); --brillo:rgba(11,127,122,.12); --sobre:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--fuente);background:var(--fondo);color:var(--texto);line-height:1.55;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .4s,color .4s}
+  #fondo3d{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .velo{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(60% 50% at 15% 0%,var(--brillo),transparent 70%),
+               radial-gradient(50% 45% at 90% 10%,color-mix(in srgb,var(--acento2) 16%,transparent),transparent 70%)}
+  .contenido{position:relative;z-index:1}
+  .wrap{width:min(var(--max),calc(100% - clamp(20px,5vw,60px)));margin:0 auto}
+  button{font-family:inherit}
+  :focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+  /* barra */
+  .barra{position:sticky;top:0;z-index:60;backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+    background:color-mix(in srgb,var(--fondo) 72%,transparent);border-bottom:1px solid var(--borde)}
+  .barra .in{display:flex;align-items:center;gap:14px;padding:11px 0}
+  .marca{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:14.5px}
+  .marca i{width:22px;height:22px;border-radius:7px;background:conic-gradient(from 200deg,var(--acento),var(--acento2),var(--alerta),var(--acento));
+    box-shadow:0 0 18px color-mix(in srgb,var(--acento) 60%,transparent);transform:rotate(12deg)}
+  .barra nav{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .btn{font-size:13px;border:1px solid var(--borde);background:var(--panel);color:var(--texto);
+    padding:9px 15px;border-radius:999px;cursor:pointer;transition:.2s;white-space:nowrap}
+  .btn:hover{border-color:var(--acento);color:var(--acento);transform:translateY(-1px)}
+  .btn.primario{background:linear-gradient(120deg,var(--acento),var(--acento2),var(--acento));background-size:200% 100%;
+    border:none;color:var(--sobre);font-weight:800;box-shadow:0 10px 30px -12px var(--acento);animation:desliza 6s linear infinite}
+  @keyframes desliza{to{background-position:200% 0}}
+  .btn.primario:hover{filter:brightness(1.1);color:var(--sobre)}
+  .btn.grande{padding:13px 22px;font-size:14.5px}
+  .btn.icono{padding:9px 11px;display:grid;place-items:center}
+  .btn.icono .ic{display:block;width:15px;height:15px;border-radius:50%;border:1.6px solid currentColor;background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+  .insignia{font-size:10.5px;font-weight:800;background:var(--acento);color:var(--sobre);border-radius:999px;padding:1px 7px;margin-left:4px}
+
+  /* hero */
+  header{padding:clamp(46px,7vw,90px) 0 clamp(30px,4vw,50px);position:relative;overflow-x:clip}
+  .hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:30px;align-items:center}
+  .kicker{display:inline-flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--alerta);border:1px solid color-mix(in srgb,var(--alerta) 45%,transparent);
+    background:color-mix(in srgb,var(--alerta) 10%,transparent);padding:7px 13px;border-radius:999px;font-weight:700}
+  h1{font-size:clamp(32px,5.2vw,66px);line-height:1.02;letter-spacing:-.04em;font-weight:800;margin:20px 0 16px;max-width:16ch}
+  h1 .g{background:linear-gradient(100deg,var(--acento),var(--acento2) 55%,var(--alerta));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:clamp(15px,1.7vw,18.5px);color:var(--suave);max-width:58ch}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .hero-datos{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;list-style:none}
+  .hero-datos li{font-size:12.5px;color:var(--suave);border:1px solid var(--borde);background:var(--panel);
+    padding:7px 13px;border-radius:999px;backdrop-filter:blur(6px)}
+  .hero-datos b{color:var(--texto)}
+
+  /* pila 3D */
+  .escena{perspective:1100px;height:400px;display:grid;place-items:center}
+  .pila{position:relative;width:270px;height:300px;transform-style:preserve-3d;
+    transform:rotateX(var(--rx,16deg)) rotateY(var(--ry,-8deg));transition:transform .25s ease-out}
+  .capa{position:absolute;inset:0;border-radius:22px;padding:20px;border:1px solid var(--borde);
+    background:linear-gradient(150deg,color-mix(in srgb,var(--panelSolido) 92%,transparent),color-mix(in srgb,var(--acento) 12%,var(--panelSolido)));
+    box-shadow:0 40px 70px -30px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.12);
+    animation:flota 7s ease-in-out infinite;overflow:hidden}
+  .capa::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+    background:radial-gradient(260px circle at var(--gx,30%) var(--gy,0%),rgba(255,255,255,.16),transparent 60%)}
+  .capa.c1{transform:translate3d(-84px,-58px,-130px);opacity:.8}
+  .capa.c2{transform:translate3d(0,0,0);animation-delay:-2.3s}
+  .capa.c3{transform:translate3d(84px,60px,130px);animation-delay:-4.6s;
+    background:linear-gradient(150deg,color-mix(in srgb,var(--panelSolido) 88%,transparent),color-mix(in srgb,var(--acento2) 22%,var(--panelSolido)))}
+  @keyframes flota{50%{translate:0 -12px}}
+  .capa h5{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--acento);margin-bottom:12px}
+  .capa .ln{height:8px;border-radius:4px;background:color-mix(in srgb,var(--texto) 16%,transparent);margin-bottom:9px}
+  .capa .ln.a{width:85%}.capa .ln.b{width:62%}.capa .ln.c{width:74%}.capa .ln.d{width:40%;background:var(--acento)}
+  .capa .mini{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--suave);margin-bottom:9px}
+  .capa .mini i{width:11px;height:11px;border-radius:50%;flex:none}
+  .capa .gran{font-size:52px;font-weight:800;letter-spacing:-.04em;line-height:1;margin-top:14px}
+  .capa .gran small{font-size:14px;color:var(--suave);font-weight:600;letter-spacing:0}
+
+  /* secciones */
+  section{padding:clamp(34px,5vw,64px) 0;scroll-margin-top:56px}
+  .titulo{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+  .titulo .n{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--acento);border:1px solid color-mix(in srgb,var(--acento) 40%,transparent);
+    padding:4px 9px;border-radius:6px}
+  h2{font-size:clamp(22px,3vw,34px);letter-spacing:-.025em}
+  .sub{color:var(--suave);font-size:14.5px;margin:8px 0 24px;max-width:76ch}
+
+  .progreso{display:flex;gap:6px;margin:0 0 22px}
+  .progreso i{height:5px;flex:1;border-radius:3px;background:var(--borde);transition:.3s}
+  .progreso i.on{background:linear-gradient(90deg,var(--acento),var(--acento2));box-shadow:0 0 12px color-mix(in srgb,var(--acento) 50%,transparent)}
+
+  .dos{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(310px,.8fr);gap:22px;align-items:start}
+  .formulario{display:grid;gap:16px}
+  .campo{border:1px solid var(--borde);background:color-mix(in srgb,var(--panelSolido) 88%,transparent);backdrop-filter:blur(10px);
+    border-radius:var(--radio);padding:18px 20px;transition:.25s;position:relative}
+  .campo:focus-within{border-color:var(--acento);box-shadow:0 0 0 3px color-mix(in srgb,var(--acento) 18%,transparent)}
+  .campo .et{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .campo .et span{display:grid;place-items:center;width:26px;height:26px;font-size:12px;font-weight:800;color:var(--sobre);
+    background:linear-gradient(135deg,var(--acento),var(--acento2));border-radius:8px;flex:none}
+  .campo .et label{font-size:14.5px;font-weight:700}
+  .campo .ayuda{font-size:12.5px;color:var(--tenue);margin-top:8px}
+  input[type=text],textarea{width:100%;font:inherit;font-size:14.5px;color:var(--texto);
+    background:color-mix(in srgb,var(--fondo2) 70%,transparent);border:1px solid var(--borde);
+    border-radius:11px;padding:11px 13px;outline:none;resize:vertical;transition:.2s}
+  input:focus,textarea:focus{border-color:var(--acento)}
+  textarea{min-height:74px}
+  .opciones{display:flex;flex-wrap:wrap;gap:8px}
+  .opcion{font-size:13px;border:1px solid var(--borde);background:color-mix(in srgb,var(--fondo2) 60%,transparent);
+    color:var(--suave);padding:8px 13px;border-radius:999px;cursor:pointer;transition:.18s}
+  .opcion:hover{border-color:var(--acento);color:var(--texto)}
+  .opcion.on{background:var(--acento);border-color:var(--acento);color:var(--sobre);font-weight:800}
+  .verbo-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;margin-top:9px;padding:4px 10px;border-radius:999px;
+    border:1px solid var(--borde);color:var(--suave)}
+  .verbo-chip b{color:var(--texto)}
+
+  .acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;align-items:center}
+  .nota{font-size:12.5px;color:var(--tenue)}
+
+  /* semáforo */
+  .semaforo{position:sticky;top:74px;perspective:900px}
+  .sem-carta{border:1px solid var(--borde);border-radius:22px;padding:20px;position:relative;overflow:hidden;
+    background:linear-gradient(160deg,color-mix(in srgb,var(--panelSolido) 92%,transparent),color-mix(in srgb,var(--acento2) 9%,var(--panelSolido)));
+    box-shadow:var(--sombra);backdrop-filter:blur(12px);transform-style:preserve-3d;
+    transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .2s ease-out}
+  .sem-carta::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(320px circle at var(--gx,80%) var(--gy,0%),color-mix(in srgb,var(--acento) 16%,transparent),transparent 65%)}
+  .sem-cab{display:flex;align-items:center;gap:16px;margin-bottom:14px;transform:translateZ(30px)}
+  .medidor{position:relative;width:104px;height:104px;flex:none}
+  .medidor svg{width:100%;height:100%;transform:rotate(-90deg);filter:drop-shadow(0 0 10px color-mix(in srgb,var(--acento) 45%,transparent))}
+  .medidor circle{fill:none;stroke-width:9;stroke-linecap:round}
+  .medidor .base{stroke:var(--borde)}
+  .medidor .val{stroke:url(#gradMed);stroke-dasharray:276.5;stroke-dashoffset:276.5;transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1)}
+  .medidor .num{position:absolute;inset:0;display:grid;place-items:center;font-size:28px;font-weight:800;letter-spacing:-.03em}
+  .sem-cab h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--acento);margin-bottom:4px}
+  .sem-cab .etq{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .sem-cab .exp{font-size:12px;color:var(--tenue);margin-top:2px}
+  .crit{display:grid;grid-template-columns:auto 1fr auto;gap:4px 11px;padding:11px 0;border-top:1px dashed var(--borde);align-items:start}
+  .luz{width:13px;height:13px;border-radius:50%;margin-top:4px;background:var(--tenue);transition:.3s}
+  .luz.ok{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+  .luz.medio{background:var(--alerta);box-shadow:0 0 12px var(--alerta)}
+  .luz.mal{background:var(--mal);box-shadow:0 0 12px var(--mal);animation:late 1.4s ease-in-out infinite}
+  @keyframes late{50%{transform:scale(1.25)}}
+  .crit .nom{font-size:13.5px;font-weight:700}
+  .crit .pt{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--suave)}
+  .crit .msg{grid-column:2/4;font-size:12.5px;color:var(--suave)}
+  .crit .acc{grid-column:2/4;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .acc button{font-size:11.5px;border:1px solid color-mix(in srgb,var(--acento) 50%,transparent);background:color-mix(in srgb,var(--acento) 10%,transparent);
+    color:var(--acento);border-radius:999px;padding:4px 10px;cursor:pointer;transition:.18s}
+  .acc button:hover{background:var(--acento);color:var(--sobre)}
+
+  /* resultado */
+  #resultado{display:none}
+  #resultado.visible{display:block;animation:subir .5s ease}
+  @keyframes subir{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .aviso{display:none;align-items:center;gap:10px;margin:-6px 0 16px;padding:10px 14px;
+    border:1px dashed color-mix(in srgb,var(--acento) 50%,transparent);border-radius:12px;
+    background:color-mix(in srgb,var(--acento) 8%,transparent);font-size:13px;color:var(--suave)}
+  .aviso b{color:var(--acento)}
+  .pestanas{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .pestanas button{font-size:13px;border:1px solid var(--borde);background:var(--panel);color:var(--suave);
+    padding:8px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+  .pestanas button.on{background:var(--texto);color:var(--fondo);border-color:var(--texto);font-weight:700}
+  .panel{border:1px solid var(--borde);background:color-mix(in srgb,var(--panelSolido) 92%,transparent);backdrop-filter:blur(10px);
+    border-radius:var(--radio);padding:22px 24px;box-shadow:var(--sombra)}
+  .panel h3{font-size:16px;margin-bottom:14px;letter-spacing:-.01em}
+  .ficha{display:grid;gap:12px}
+  .ficha .item{border-left:3px solid var(--acento);padding:10px 12px 10px 14px;background:color-mix(in srgb,var(--acento) 6%,transparent);
+    border-radius:0 12px 12px 0}
+  .ficha .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acento);font-weight:800;margin-bottom:4px}
+  .ficha .v{font-size:14.5px;color:var(--texto)}
+  .ficha .v small{display:block;color:var(--tenue);font-size:12.5px;margin-top:4px}
+
+  .tabla{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;min-width:640px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--acento);
+    padding:8px 10px;border-bottom:1px solid var(--borde)}
+  td{padding:9px 10px;border-bottom:1px solid color-mix(in srgb,var(--borde) 60%,transparent);color:var(--suave);vertical-align:top;font-size:12.5px}
+  td b{color:var(--texto);font-size:13px}
+  td .d{display:block;font-size:12px;color:var(--tenue)}
+  tr:last-child td{border-bottom:none}
+  td.logro{background:color-mix(in srgb,var(--acento) 14%,transparent);color:var(--texto);
+    box-shadow:inset 0 0 0 1.5px var(--acento);border-radius:8px}
+  td.logro::before{content:"✓ Su diseño";display:block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--acento);margin-bottom:3px}
+  .resumen-nota{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;font-size:14px;color:var(--suave)}
+  .resumen-nota strong{font-size:24px;color:var(--texto);letter-spacing:-.02em}
+
+  .linea{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px dashed var(--borde)}
+  .linea:last-child{border-bottom:none}
+  .linea .t{font-family:var(--mono);font-size:12.5px;color:var(--acento);min-width:92px;font-weight:700}
+  .linea .d{font-size:14px;color:var(--suave)}
+  .linea .d b{color:var(--texto)}
+  .chip{display:inline-block;font-size:11.5px;border:1px solid var(--borde);border-radius:999px;padding:4px 10px;color:var(--suave);
+    margin:0 4px 4px 0;background:transparent}
+  button.chip{cursor:pointer;transition:.18s}
+  button.chip:hover{border-color:var(--acento);color:var(--acento)}
+  button.chip.on{background:var(--acento);border-color:var(--acento);color:var(--sobre);font-weight:800}
+
+  /* banco */
+  .banco{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+  .guardada{border:1px solid var(--borde);background:color-mix(in srgb,var(--panelSolido) 92%,transparent);border-radius:16px;padding:16px;
+    transition:.25s;display:flex;flex-direction:column;gap:8px}
+  .guardada:hover{transform:translateY(-4px);border-color:var(--acento);box-shadow:var(--sombra)}
+  .guardada h4{font-size:14.5px;letter-spacing:-.01em}
+  .guardada p{font-size:12.5px;color:var(--suave);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .guardada .pie{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;align-items:center}
+  .guardada .pie .btn{padding:5px 10px;font-size:12px}
+  .guardada .nt{font-family:var(--mono);font-size:12px;color:var(--acento);font-weight:700;margin-right:auto}
+  .vacio{border:1px dashed var(--borde);border-radius:16px;padding:26px;color:var(--tenue);font-size:13.5px;text-align:center}
+
+  .bloom{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:18px}
+  .bloom div{border:1px solid var(--borde);border-radius:14px;padding:12px 14px;background:var(--panel)}
+  .bloom b{display:block;font-size:13px;margin-bottom:4px}
+  .bloom span{font-size:12px;color:var(--suave)}
+  .bloom .no{border-color:color-mix(in srgb,var(--mal) 50%,transparent)}
+  .bloom .no b{color:var(--mal)}
+
+  .h3s{font-size:17px;letter-spacing:-.015em;margin:34px 0 12px}
+  .pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .paso{border:1px solid var(--borde);background:color-mix(in srgb,var(--panelSolido) 92%,transparent);backdrop-filter:blur(10px);border-radius:16px;padding:18px}
+  .paso span{display:grid;place-items:center;width:30px;height:30px;font-size:13px;font-weight:800;color:var(--sobre);
+    background:linear-gradient(135deg,var(--acento),var(--acento2));border-radius:9px;margin-bottom:12px}
+  .paso h4{font-size:15.5px;margin-bottom:6px}
+  .paso p{font-size:13.5px;color:var(--suave)}
+  .luces{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:13.5px;color:var(--suave)}
+  .luces div{display:flex;align-items:center;gap:8px}
+  .luces .luz{margin:0;flex:none}
+  .luces b{color:var(--texto)}
+  .antes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .lado{border:1px solid var(--borde);border-radius:16px;padding:18px;background:color-mix(in srgb,var(--panelSolido) 92%,transparent);display:flex;flex-direction:column;gap:8px}
+  .lado.no{border-color:color-mix(in srgb,var(--mal) 45%,transparent)}
+  .lado.si{border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+  .lado h4{display:flex;align-items:center;gap:9px;font-size:14.5px}
+  .lado h4 .luz{margin:0}
+  .lado p{font-size:13.5px;color:var(--suave)}
+  .lado p b{color:var(--texto)}
+  .lado .por{font-size:13px;color:var(--tenue);margin-bottom:6px}
+  .lado .btn{align-self:flex-start;margin-top:auto}
+  .guardada .area{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--acento);font-weight:800}
+  footer{border-top:1px solid var(--borde);padding:28px 0 44px;color:var(--tenue);font-size:12.5px}
+  footer .in{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  .tostada{position:fixed;left:50%;bottom:26px;transform:translate(-50%,30px);opacity:0;z-index:99;pointer-events:none;
+    background:var(--texto);color:var(--fondo);font-size:13.5px;font-weight:600;padding:11px 18px;border-radius:999px;transition:.3s;box-shadow:var(--sombra)}
+  .tostada.on{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:940px){
+    .hero{grid-template-columns:1fr}
+    .escena{height:330px;margin-top:10px}
+    .pila{width:240px;height:270px}
+    .dos{grid-template-columns:1fr}
+    .semaforo{position:static}
+  }
+  @media (max-width:1040px){
+    .barra nav .btn.t{display:none}
+  }
+  @media (max-width:760px){
+    .capa .gran{font-size:40px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;scroll-behavior:auto!important}
+    .pila,.sem-carta{transition:none}
+  }
+  @media print{
+    @page{ size:A4; margin:16mm 15mm; }
+    *{box-shadow:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;backdrop-filter:none!important}
+    html,body{background:#fff!important;color:#101828!important;overflow:visible!important}
+    #fondo3d,.velo,.barra,header,#hacer,#banco,#como,#disciplinas,footer,.acciones,.pestanas,.aviso,.tostada,
+    #resultado .titulo,#resultado .sub{display:none!important}
+    .contenido{position:static}
+    #docHeader{display:block!important;padding:0 0 16px;border-bottom:2px solid #101828;margin-bottom:22px}
+    #docHeader .kicker{color:#0b7f7a;border:none;background:none;padding:0;font-size:9pt;letter-spacing:.18em}
+    #docHeader h1{font-size:24pt;line-height:1.1;margin:8px 0 8px;color:#101828;max-width:none}
+    #docHeader .lead{color:#4a5568;font-size:10.5pt;max-width:70ch}
+    #docHeader .hero-datos{margin-top:12px}
+    #docHeader .hero-datos li{background:#fff;border:1px solid #d9dde7;color:#4a5568;font-size:8.5pt;padding:4px 9px}
+    #docHeader .hero-datos b{color:#101828}
+    #resultado{display:block!important;padding:0!important;animation:none;counter-reset:sec}
+    #resultado .wrap{width:100%}
+    .pestana-panel,.panel{display:block!important}
+    .panel{background:#fff!important;border:none!important;border-radius:0;padding:0;margin:0 0 20px;counter-increment:sec}
+    .panel h3{font-size:13pt;color:#101828;margin:0 0 10px;padding-bottom:4px;border-bottom:1px solid #d9dde7}
+    .panel h3::before{content:counter(sec) " · ";color:#0b7f7a}
+    .ficha{gap:8px}
+    .ficha .item{background:#f1f7f6!important;border-left:3px solid #0b7f7a;padding:7px 12px;break-inside:avoid}
+    .ficha .k{color:#0b7f7a;font-size:8pt}
+    .ficha .v{color:#101828;font-size:10.2pt}
+    .ficha .v small{color:#7b8794;font-size:8.6pt}
+    .linea{padding:7px 0;break-inside:avoid}
+    .linea .t{color:#0b7f7a;font-size:9pt}
+    .linea .d{color:#4a5568;font-size:10pt}
+    .linea .d b{color:#101828}
+    .tabla{overflow:visible}
+    table{background:#fff;border:1px solid #c9d0de;font-size:7.6pt;min-width:0}
+    th{background:#0b7f7a!important;color:#fff!important;font-size:6.6pt;padding:5px}
+    td{padding:5px;color:#3c4560;border-bottom:1px solid #e6e9f0;font-size:7.6pt}
+    td b{color:#101828;font-size:8pt} td .d{font-size:7pt;color:#7b8794}
+    td.logro{background:#e3f3f1!important;box-shadow:inset 0 0 0 1px #0b7f7a;color:#101828}
+    td.logro::before{color:#0b7f7a;font-size:6pt}
+    .resumen-nota{color:#4a5568;font-size:10pt} .resumen-nota strong{color:#101828;font-size:16pt}
+    .nota{color:#7b8794;font-size:8pt}
+    .chip{border:1px solid #d9dde7;color:#4a5568;font-size:7.6pt;background:#fff!important}
+    button.chip.on{border-color:#0b7f7a;color:#0b7f7a;font-weight:800}
+  }
+</style>
+</head>
+<body>
+<canvas id="fondo3d" aria-hidden="true"></canvas>
+<div class="velo"></div>
+
+<div class="contenido">
+
+  <div id="docHeader" style="display:none">
+    <div class="kicker">Generado con el Generador de actividades TIC · 72P05</div>
+    <h1 id="docTitulo">Mi actividad</h1>
+    <p class="lead" id="docLead"></p>
+    <ul class="hero-datos">
+      <li><b>Área:</b> <span id="docArea">—</span></li>
+      <li><b>Nivel:</b> <span id="docNivel">—</span></li>
+      <li><b>Sesión:</b> <span id="docDuracion">—</span></li>
+      <li><b>Restricción:</b> <span id="docRestriccion">—</span></li>
+      <li><b>Alineación del diseño:</b> <span id="docNota">—</span></li>
+    </ul>
+  </div>
+
+  <div class="barra">
+    <div class="wrap in">
+      <div class="marca"><i></i> Generador de actividades con TIC</div>
+      <nav>
+        <button class="btn t" data-ir="hacer">Crear la mía</button>
+        <button class="btn t" data-ir="resultado">Resultado</button>
+        <button class="btn t" data-ir="banco">Mi banco<span class="insignia" id="cuentaBanco">0</span></button>
+        <button class="btn t" data-ir="como">Cómo funciona</button>
+        <button class="btn t" data-ir="disciplinas">Disciplinas</button>
+        <button class="btn icono" id="tema" title="Cambiar tema" aria-label="Cambiar tema"><span class="ic"></span></button>
+      </nav>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap hero">
+      <div>
+        <span class="kicker">Módulo TIC · 72P05 · «Una idea digital para mi área»</span>
+        <h1>Cinco decisiones.<br>Una <span class="g">actividad</span> que sí se puede evaluar.</h1>
+        <p class="lead">Escriba qué quiere que aprendan y qué aceptaría como prueba. Mientras escribe, un semáforo califica si el resultado, la evidencia, la herramienta y el tiempo se sostienen entre sí. Al final se lleva la ficha, la secuencia y dos rúbricas.</p>
+        <div class="hero-cta">
+          <button class="btn primario grande" data-ir="hacer">Crear mi actividad</button>
+          <button class="btn grande" id="ejemploHero">Ver un ejemplo</button>
+        </div>
+        <ul class="hero-datos">
+          <li><b>34 %</b> de los docentes de América Latina alcanza el nivel básico en creación de recursos digitales</li>
+          <li>BID y ProFuturo (2024) · 28.358 docentes</li>
+          <li>Funciona sin conexión · no envía datos</li>
+        </ul>
+      </div>
+
+      <div class="escena" aria-hidden="true">
+        <div class="pila" id="pila">
+          <div class="capa c1"><h5>Secuencia</h5>
+            <div class="ln a"></div><div class="ln b"></div><div class="ln c"></div><div class="ln a"></div><div class="ln d"></div><div class="ln b"></div></div>
+          <div class="capa c2"><h5>Ficha de 5 campos</h5>
+            <div class="ln d"></div><div class="ln a"></div><div class="ln c"></div><div class="ln d"></div><div class="ln b"></div><div class="ln a"></div><div class="ln c"></div></div>
+          <div class="capa c3"><h5>Semáforo de alineación</h5>
+            <div class="mini"><i style="background:var(--ok);box-shadow:0 0 10px var(--ok)"></i>Resultado observable</div>
+            <div class="mini"><i style="background:var(--ok);box-shadow:0 0 10px var(--ok)"></i>Herramienta coherente</div>
+            <div class="mini"><i style="background:var(--ok);box-shadow:0 0 10px var(--ok)"></i>Evidencia con proceso</div>
+            <div class="mini"><i style="background:var(--alerta);box-shadow:0 0 10px var(--alerta)"></i>Tiempo ajustado</div>
+            <div class="gran">4,7 <small>/ 5,0</small></div></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="hacer">
+    <div class="wrap">
+      <div class="titulo"><span class="n">01</span><h2>Las cinco decisiones</h2></div>
+      <p class="sub">Vaya de arriba hacia abajo. El semáforo aplica la rúbrica del módulo a lo que usted va escribiendo.</p>
+      <div class="progreso" id="progreso"><i></i><i></i><i></i><i></i><i></i></div>
+
+      <div class="dos">
+        <div>
+          <div class="formulario" id="formulario">
+            <div class="campo">
+              <div class="et"><span>1</span><label for="area">Área y tema que quiere enseñar</label></div>
+              <input type="text" id="area" placeholder="Ej.: Ingeniería de Sistemas · evaluación de modelos de IA" autocomplete="off">
+              <div class="ayuda">Entre más concreto el tema, más fácil resulta elegir la actividad.</div>
+            </div>
+
+            <div class="campo">
+              <div class="et"><span>2</span><label for="rae">Resultado de aprendizaje</label></div>
+              <textarea id="rae" placeholder="Ej.: Auditar un clasificador identificando disparidades de desempeño entre subgrupos y justificar una corrección con criterios éticos."></textarea>
+              <div id="verboChip"></div>
+              <div class="ayuda">Empiece con un verbo que se pueda observar: identificar, explicar, resolver, analizar, argumentar, diseñar.</div>
+            </div>
+
+            <div class="campo">
+              <div class="et"><span>3</span><label for="evidencia">¿Qué evidencia aceptaría como prueba de que aprendieron?</label></div>
+              <textarea id="evidencia" placeholder="Ej.: La matriz de análisis con las métricas desglosadas por subgrupo y un plan de corrección de una página."></textarea>
+              <div class="ayuda">Nombre el entregable: una matriz, un informe, un prototipo, un video. Es la pregunta que más cuesta y la que más ayuda.</div>
+            </div>
+
+            <div class="campo">
+              <div class="et"><span>4</span><label>Nivel y modalidad</label></div>
+              <div class="ayuda" style="margin-bottom:8px">Nivel educativo</div>
+              <div class="opciones" id="etapa">
+                <button class="opcion" data-v="preescolar">Preescolar</button>
+                <button class="opcion" data-v="primaria">Básica primaria</button>
+                <button class="opcion" data-v="secundaria">Básica secundaria</button>
+                <button class="opcion" data-v="media">Media</button>
+                <button class="opcion" data-v="tecnica">Técnica y tecnológica</button>
+                <button class="opcion on" data-v="pregrado">Pregrado</button>
+                <button class="opcion" data-v="posgrado">Posgrado</button>
+                <button class="opcion" data-v="continua">Educación continua</button>
+              </div>
+              <div class="ayuda" style="margin:12px 0 8px">Modalidad</div>
+              <div class="opciones" id="modalidad">
+                <button class="opcion on" data-v="presencial">Presencial</button>
+                <button class="opcion" data-v="virtual">Virtual</button>
+                <button class="opcion" data-v="hibrida">Híbrida</button>
+                <button class="opcion" data-v="remota-baja">Remota con conexión intermitente</button>
+              </div>
+              <div class="ayuda" style="margin:12px 0 8px">Duración de la sesión</div>
+              <div class="opciones" id="duracion">
+                <button class="opcion" data-v="30">30</button>
+                <button class="opcion" data-v="45">45</button>
+                <button class="opcion" data-v="55">55</button>
+                <button class="opcion on" data-v="60">60</button>
+                <button class="opcion" data-v="90">90</button>
+                <button class="opcion" data-v="120">120</button>
+                <button class="opcion" data-v="0">Otro…</button>
+                <input type="number" id="duracionOtro" min="20" max="240" step="5" placeholder="min"
+                  style="width:88px;font:inherit;font-size:13px;padding:6px 9px;border-radius:999px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto);display:none">
+              </div>
+              <div class="ayuda" style="margin-top:10px">Sesiones</div>
+              <div class="opciones" id="sesiones">
+                <button class="opcion on" data-v="1">1 sesión</button>
+                <button class="opcion" data-v="2">2 sesiones</button>
+                <button class="opcion" data-v="3">3 sesiones</button>
+              </div>
+            </div>
+
+            <div class="campo">
+              <div class="et"><span>5</span><label>Restricciones reales del aula</label></div>
+              <div class="opciones" id="restriccion">
+                <button class="opcion on" data-v="conectividad">Conectividad estable</button>
+                <button class="opcion" data-v="sinconexion">Conectividad inestable</button>
+                <button class="opcion" data-v="sinequipos">Sin equipos por estudiante</button>
+              </div>
+              <div class="ayuda">Con esto en cuenta, el generador propone solo herramientas que caben en su aula.</div>
+            </div>
+          </div>
+
+          <div class="acciones">
+            <button class="btn primario grande" id="generar">Generar la actividad</button>
+            <button class="btn" id="ejemplo">Cargar un ejemplo</button>
+            <button class="btn" id="limpiar">Limpiar</button>
+            <span class="nota" id="estado">Todo queda en su equipo. Nada se envía a internet.</span>
+          </div>
+        </div>
+
+        <aside class="semaforo" aria-live="polite">
+          <div class="sem-carta" id="semCarta">
+            <div class="sem-cab">
+              <div class="medidor">
+                <svg viewBox="0 0 104 104"><defs><linearGradient id="gradMed" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#3ddbd9"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+                  <circle class="base" cx="52" cy="52" r="44"/><circle class="val" id="medVal" cx="52" cy="52" r="44"/></svg>
+                <div class="num" id="medNum">—</div>
+              </div>
+              <div>
+                <h3>Semáforo de alineación</h3>
+                <div class="etq" id="medEtq">Esperando sus decisiones</div>
+                <div class="exp">La rúbrica del módulo, aplicada a su diseño.</div>
+              </div>
+            </div>
+            <div id="criterios"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultado">
+    <div class="wrap">
+      <div class="titulo"><span class="n">02</span><h2>Lo que produce</h2></div>
+      <p class="sub">Cinco piezas que salen de sus cinco decisiones. Si cambia cualquiera, todo se recalcula.</p>
+      <div class="aviso" id="avisoEjemplo"><b>Ejemplo</b> — así se ve la propuesta con las decisiones de un curso de Ingeniería. Cambie cualquiera y se recalcula.</div>
+      <div class="aviso" id="avisoCompartida"><b>Actividad compartida</b> — un colega le envió estas decisiones. Puede ajustarlas y guardarlas en su banco.</div>
+      <div class="pestanas" id="pestanas">
+        <button class="on" data-p="ficha">Ficha de 5 campos</button>
+        <button data-p="secuencia">Secuencia</button>
+        <button data-p="diseno">Rúbrica del diseño · aplicada</button>
+        <button data-p="estudiante">Rúbrica para el estudiante</button>
+        <button data-p="trazabilidad">Trazabilidad</button>
+      </div>
+
+      <div class="panel pestana-panel" id="p-ficha"><h3>Ficha para la pizarra virtual</h3><div class="ficha" id="salida-ficha"></div></div>
+      <div class="panel pestana-panel" id="p-secuencia" style="display:none"><h3>Secuencia de la sesión</h3><div id="salida-secuencia"></div></div>
+      <div class="panel pestana-panel" id="p-diseno" style="display:none"><h3>Rúbrica del diseño, aplicada a esta actividad</h3><div id="salida-diseno"></div></div>
+      <div class="panel pestana-panel" id="p-estudiante" style="display:none"><h3>Rúbrica para valorar la evidencia del estudiante</h3><div id="salida-estudiante"></div></div>
+      <div class="panel pestana-panel" id="p-trazabilidad" style="display:none"><h3>Por qué esta herramienta y no otra</h3><div id="salida-trazabilidad"></div></div>
+
+      <div class="acciones">
+        <button class="btn primario" id="compartir">Compartir con un colega</button>
+        <button class="btn" id="guardar">Guardar en mi banco</button>
+        <button class="btn" id="imprimir">Descargar en PDF</button>
+        <button class="btn" id="bajarHtml">Descargar como página</button>
+        <button class="btn" id="copiar">Copiar la ficha</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="banco">
+    <div class="wrap">
+      <div class="titulo"><span class="n">03</span><h2>Mi banco de actividades</h2></div>
+      <p class="sub">Las actividades que guarde quedan en este navegador. Puede exportarlas en un archivo para pasarlas a otro equipo o a su departamento.</p>
+      <div class="banco" id="listaBanco"></div>
+      <div class="acciones">
+        <button class="btn" id="exportar">Exportar el banco</button>
+        <button class="btn" id="importarBtn">Importar un banco</button>
+        <input type="file" id="importar" accept=".json,application/json" hidden>
+      </div>
+    </div>
+  </section>
+
+  <section id="como">
+    <div class="wrap">
+      <div class="titulo"><span class="n">04</span><h2>Cómo funciona</h2></div>
+      <p class="sub">En corto: usted responde cinco preguntas, el generador revisa que sus respuestas encajen entre sí y le devuelve la actividad armada.</p>
+
+      <div class="pasos">
+        <div class="paso"><span>1</span><h4>Usted decide</h4><p>Escribe qué deben lograr sus estudiantes y qué les va a recibir como prueba. Marca el nivel, el tiempo de la sesión y las condiciones de su aula.</p></div>
+        <div class="paso"><span>2</span><h4>El generador revisa</h4><p>Busca el verbo de su resultado («analizar», «diseñar»…), mira qué entregable pidió y comprueba que ese entregable alcance para demostrar ese verbo.</p></div>
+        <div class="paso"><span>3</span><h4>Usted recibe</h4><p>La ficha, la secuencia con tiempos, la rúbrica para sus estudiantes y una herramienta digital que cabe en su aula, con la razón por la que se eligió.</p></div>
+      </div>
+
+      <h3 class="h3s">Las cuatro preguntas que hace el semáforo</h3>
+      <div class="panel">
+        <div class="linea"><div class="t">¿Se ve?</div><div class="d"><b>¿Se puede ver lo que el estudiante logra?</b> El verbo debe nombrar algo que el estudiante hace. «Comprender la célula» no se ve; «explicar la función de cada organelo» sí.</div></div>
+        <div class="linea"><div class="t">¿Sirve?</div><div class="d"><b>¿La herramienta sirve para esa prueba?</b> Se propone la que deja a la vista lo que el verbo pide, y solo entre las que funcionan con su conexión, sus equipos y su modalidad.</div></div>
+        <div class="linea"><div class="t">¿Alcanza?</div><div class="d"><b>¿La prueba alcanza para demostrarlo?</b> Si usted pide «evaluar» y recibe un cuestionario de selección, el estudiante puede acertar sin haber evaluado nada. El semáforo le sugiere otra evidencia.</div></div>
+        <div class="linea"><div class="t">¿Cabe?</div><div class="d"><b>¿Cabe en el tiempo?</b> Diseñar un producto pide más minutos que reconocer un concepto. Si la sesión queda corta, se lo avisa.</div></div>
+      </div>
+      <div class="luces">
+        <div><i class="luz ok"></i><b>Verde</b> — sus decisiones encajan (4,7 o 5,0).</div>
+        <div><i class="luz medio"></i><b>Amarillo</b> — funciona, y mejora con un ajuste (4,2).</div>
+        <div><i class="luz mal" style="animation:none"></i><b>Rojo</b> — dos decisiones se contradicen (3,4 o 2,0).</div>
+      </div>
+      <p class="nota" style="margin-top:10px">La nota de arriba es el promedio de las cuatro. La calcula un conjunto de reglas, no una persona ni una inteligencia artificial: sirve para conversar sobre el diseño y no reemplaza su criterio.</p>
+
+      <h3 class="h3s">Un caso, antes y después</h3>
+      <div class="antes">
+        <div class="lado no"><h4><i class="luz mal" style="animation:none"></i>Antes</h4>
+          <p><b>Resultado:</b> «Que los estudiantes conozcan la célula».</p><p><b>Evidencia:</b> «Un cuestionario de opción múltiple».</p>
+          <p class="por">«Conocer» no se puede ver, y el cuestionario se puede responder sin comprender.</p>
+          <button class="btn" data-caso="antes">Probar este caso</button></div>
+        <div class="lado si"><h4><i class="luz ok"></i>Después</h4>
+          <p><b>Resultado:</b> «Explicar la función de cada organelo de una célula a partir de una micrografía».</p><p><b>Evidencia:</b> «La micrografía rotulada y un video corto donde justifican cada rótulo».</p>
+          <p class="por">Ahora hay algo que el estudiante hace, y un entregable que solo sale bien si entendió.</p>
+          <button class="btn" data-caso="despues">Probar este caso</button></div>
+      </div>
+
+      <h3 class="h3s">Los verbos que reconoce, del más sencillo al más exigente</h3>
+      <div class="bloom" id="bloom"></div>
+      <p class="nota" style="margin-top:18px">Fuentes: BID y ProFuturo (2024), <i>Aproximación a las competencias digitales de docentes en América Latina</i>; Anderson y Krathwohl (2001), revisión de la taxonomía de Bloom; OVA del módulo Metodologías y estrategias didácticas con TIC; Decreto 1330 de 2019.</p>
+    </div>
+  </section>
+
+  <section id="disciplinas">
+    <div class="wrap">
+      <div class="titulo"><span class="n">05</span><h2>¿Qué disciplinas pueden usarlo?</h2></div>
+      <p class="sub">Todas las que puedan decir qué hace el estudiante y qué entrega. El generador no lee el contenido de su materia: lee el verbo y el entregable, y eso existe en cualquier área. Toque un ejemplo para verlo cargado.</p>
+      <div class="banco" id="listaDisc"></div>
+      <div class="panel" style="margin-top:18px">
+        <div class="linea"><div class="t">Funciona mejor</div><div class="d">Cuando la clase termina en algo que se puede recibir: un informe, un cálculo, un prototipo, un video, una sustentación.</div></div>
+        <div class="linea"><div class="t">Le cuesta</div><div class="d">Con aprendizajes de actitud o de valores («apreciar», «sensibilizarse»), porque no dejan un entregable. El semáforo le pedirá que diga qué haría el estudiante para mostrarlo.</div></div>
+        <div class="linea"><div class="t">No conoce</div><div class="d">Las herramientas propias de cada profesión: simuladores clínicos, programas de diseño técnico, equipos de laboratorio. Propone herramientas generales; si usted tiene una mejor, la actividad y las rúbricas le siguen sirviendo.</div></div>
+        <div class="linea"><div class="t">Nivel</div><div class="d">Está pensado para pregrado y posgrado. Un docente de colegio puede usarlo igual: las reglas del verbo y la evidencia son las mismas.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap in">
+      <span>Generador de actividades con TIC · Heyler Fabio Guaza Lesmes · Especialización en Docencia Universitaria</span>
+      <span>Un solo archivo · funciona sin conexión · 2026</span>
+    </div>
+  </footer>
+</div>
+<div class="tostada" id="tostada" role="status"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const raiz = document.documentElement;
+const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============================================================
+   1 · FONDO 3D: nudo tórico con profundidad (canvas, sin librerías)
+   ============================================================ */
+(function(){
+  const c=$('fondo3d'), x=c.getContext('2d');
+  let W,H,dpr, giro=0, mouse={x:0,y:0}, suave={x:0,y:0};
+  const M=380, HEBRAS=3, polvo=[];
+  for(let i=0;i<150;i++){
+    const r=3.6+Math.random()*4, a=Math.random()*6.283, b=Math.acos(2*Math.random()-1);
+    polvo.push([r*Math.sin(b)*Math.cos(a), r*Math.sin(b)*Math.sin(a), r*Math.cos(b), Math.random()]);
+  }
+  function medir(){ dpr=Math.min(devicePixelRatio||1,2); W=c.width=innerWidth*dpr; H=c.height=innerHeight*dpr;
+    c.style.width=innerWidth+'px'; c.style.height=innerHeight+'px'; }
+  addEventListener('mousemove',e=>{ mouse.x=e.clientX/innerWidth-.5; mouse.y=e.clientY/innerHeight-.5; });
+  function rot(p,ca,sa,cb,sb){
+    const X=p[0]*ca+p[2]*sa, Z=-p[0]*sa+p[2]*ca;
+    return [X, p[1]*cb-Z*sb, p[1]*sb+Z*cb];
+  }
+  function dibujar(){
+    const oscuro=raiz.dataset.tema==='oscuro';
+    const sy=scrollY;
+    x.clearRect(0,0,W,H);
+    c.style.opacity=Math.max(.3, 1-sy/1100)*(innerWidth>940?1:.7);
+    suave.x+=(mouse.x-suave.x)*.05; suave.y+=(mouse.y-suave.y)*.05;
+    giro+=0.0032;
+    const ancho=innerWidth>940;
+    const S=Math.min(W,H)*(ancho?.115:.1);
+    const cx=W*(ancho?.74:.5)+suave.x*40*dpr, cy=H*(ancho?.42:.8)-sy*.22*dpr;
+    const a=giro+suave.x*1.1+sy*.0012, b=.62+suave.y*.7;
+    const ca=Math.cos(a), sa=Math.sin(a), cb=Math.cos(b), sb=Math.sin(b);
+    const A=oscuro?[61,219,217]:[11,127,122], B=oscuro?[167,139,250]:[91,63,181], C=oscuro?[245,182,66]:[154,98,0];
+    x.globalCompositeOperation=oscuro?'lighter':'source-over';
+    x.lineCap='round';
+
+    for(const p of polvo){
+      const q=rot(p,Math.cos(a*.4),Math.sin(a*.4),cb,sb), f=7/(7+q[2]);
+      const d=(q[2]+7.6)/15.2;
+      x.fillStyle=`rgba(${A[0]},${A[1]},${A[2]},${(oscuro?.5:.35)*(1-d)*(.4+p[3]*.6)})`;
+      x.beginPath(); x.arc(cx+q[0]*S*f, cy+q[1]*S*f, dpr*(.6+1.6*(1-d)), 0, 6.283); x.fill();
+    }
+
+    for(let h=0;h<HEBRAS;h++){
+      const esc3=1+h*.11, fase=h*.05;
+      let ant=null;
+      for(let i=0;i<=M;i++){
+        const t=i/M*6.2832+fase, r=2+Math.cos(3*t);
+        const q=rot([r*Math.cos(2*t)*esc3, r*Math.sin(2*t)*esc3, 1.5*Math.sin(3*t)*esc3],ca,sa,cb,sb);
+        const f=7/(7+q[2]), px=cx+q[0]*S*f, py=cy+q[1]*S*f;
+        const d=1-(q[2]+3.6)/7.2;                      /* 1 = cerca */
+        if(ant){
+          const m=(Math.sin(t*1.5+giro*2)+1)/2, n=Math.max(0,Math.sin(t*3-giro*3));
+          const R=A[0]+(B[0]-A[0])*m+(C[0]-A[0])*n*.35, G=A[1]+(B[1]-A[1])*m+(C[1]-A[1])*n*.35, Bl=A[2]+(B[2]-A[2])*m+(C[2]-A[2])*n*.35;
+          const al=(oscuro?.95:.6)*(.1+.9*d*d)*(h===0?1:.5), an=dpr*(.7+3.4*d*d)*(h===0?1:.65);
+          if(h===0){ x.strokeStyle=`rgba(${R|0},${G|0},${Bl|0},${al*.16})`; x.lineWidth=an*5;
+            x.beginPath(); x.moveTo(ant[0],ant[1]); x.lineTo(px,py); x.stroke(); }
+          x.strokeStyle=`rgba(${R|0},${G|0},${Bl|0},${al})`; x.lineWidth=an;
+          x.beginPath(); x.moveTo(ant[0],ant[1]); x.lineTo(px,py); x.stroke();
+        }
+        ant=[px,py];
+      }
+    }
+    x.globalCompositeOperation='source-over';
+    if(!quieto) requestAnimationFrame(dibujar);
+  }
+  medir(); dibujar();
+  addEventListener('resize',()=>{ medir(); if(quieto) dibujar(); });
+  new MutationObserver(()=>{ if(quieto) dibujar(); }).observe(raiz,{attributes:true,attributeFilter:['data-tema']});
+})();
+
+/* ============================================================
+   2 · TEMA Y EFECTOS 3D DE TARJETAS
+   ============================================================ */
+const btnTema=$('tema');
+function aplicarTema(t){ raiz.dataset.tema=t;
+  btnTema.title = t==='oscuro' ? 'Cambiar a claro' : 'Cambiar a oscuro';
+  try{ localStorage.setItem('tic-tema',t); }catch(e){} }
+try{ const g=localStorage.getItem('tic-tema'); if(g) aplicarTema(g); }catch(e){}
+btnTema.addEventListener('click',()=>aplicarTema(raiz.dataset.tema==='oscuro'?'claro':'oscuro'));
+
+if(!quieto){
+  const pila=$('pila');
+  addEventListener('mousemove',e=>{
+    const nx=e.clientX/innerWidth-.5, ny=e.clientY/innerHeight-.5;
+    pila.style.setProperty('--ry',(-8+nx*26)+'deg');
+    pila.style.setProperty('--rx',(14-ny*18)+'deg');
+    pila.querySelectorAll('.capa').forEach(k=>{ k.style.setProperty('--gx',(50+nx*90)+'%'); k.style.setProperty('--gy',(30+ny*90)+'%'); });
+  });
+  const carta=$('semCarta');
+  carta.addEventListener('mousemove',e=>{
+    const r=carta.getBoundingClientRect(), nx=(e.clientX-r.left)/r.width, ny=(e.clientY-r.top)/r.height;
+    carta.style.setProperty('--ry',((nx-.5)*9)+'deg'); carta.style.setProperty('--rx',((.5-ny)*7)+'deg');
+    carta.style.setProperty('--gx',(nx*100)+'%'); carta.style.setProperty('--gy',(ny*100)+'%');
+  });
+  carta.addEventListener('mouseleave',()=>{ carta.style.setProperty('--ry','0deg'); carta.style.setProperty('--rx','0deg'); });
+}
+document.querySelectorAll('[data-ir]').forEach(b=>b.addEventListener('click',()=>{
+  const d=$(b.dataset.ir);
+  if(b.dataset.ir==='resultado' && !d.classList.contains('visible')){ if(!generar()) return; }
+  d.scrollIntoView({behavior:'smooth'});
+}));
+let tTost;
+function avisar(m){ const t=$('tostada'); t.textContent=m; t.classList.add('on'); clearTimeout(tTost); tTost=setTimeout(()=>t.classList.remove('on'),2800); }
+
+/* ============================================================
+   3 · CONOCIMIENTO: verbos, evidencias, herramientas, rúbricas
+   ============================================================ */
+const NIVELES=['recordar','comprender','aplicar','analizar','evaluar','crear'];
+const NOMBRE={recordar:'Recordar',comprender:'Comprender',aplicar:'Aplicar',analizar:'Analizar',evaluar:'Evaluar',crear:'Crear'};
+const VERBOS={
+  recordar:['identific','reconoc','defin','enumer','señal','mencion','ubic','localiz'],
+  comprender:['explic','interpret','resum','clasific','describ','ejemplific','caracteriz','ilustr','distingu'],
+  aplicar:['aplic','resolv','resuelv','ejecut','calcul','implement','demostr','demuestr','program','oper','simul','utiliz','emple'],
+  analizar:['analiz','compar','contrast','diferenci','desagreg','audit','diagnostic','examin','relacion','descompon','categoriz','infer'],
+  evaluar:['evalu','evalú','juzg','critic','justific','argument','valor','decid','defend','verific','recomend','sustent','prioriz'],
+  crear:['diseñ','cre','constru','elabor','produc','formul','propon','plane','planific','gener','desarroll','prototip','compon','redact']
+};
+const NO_OBSERVABLES=['conoc','conozc','comprend','entend','entiend','sab','aprend','concientiz','sensibiliz','familiariz','apreci','interioriz','asimil','domin'];
+const FIN='(ar|er|ir|a|e|an|en|ando|iendo|ye|yen)';
+const reVerbo=l=>new RegExp('(^|[^\\p{L}])(('+l.join('|')+')'+FIN+')(?=$|[^\\p{L}])','giu');
+const RE_NIVEL=Object.fromEntries(NIVELES.map(n=>[n,reVerbo(VERBOS[n])]));
+const RE_NO=reVerbo(NO_OBSERVABLES);
+const SUGERIDOS=['identificar','explicar','resolver','analizar','argumentar','diseñar'];
+
+const EVIDENCIAS={
+  recordar:/cuestionario|quiz|opci[oó]n m[uú]ltiple|examen|test\b|falso y verdadero|glosario|listado/iu,
+  comprender:/resumen|mapa conceptual|mapa mental|infograf[ií]a|exposici[oó]n|explicaci[oó]n|esquema|l[ií]nea de tiempo|cartelera/iu,
+  aplicar:/ejercicio|taller resuelto|c[oó]digo|c[aá]lculo|procedimiento|pr[aá]ctica|simulaci[oó]n|laboratorio|problema resuelto|demostraci[oó]n/iu,
+  analizar:/matriz|an[aá]lisis|diagn[oó]stico|cuadro comparativo|comparativ[oa]|informe|estudio de caso|m[eé]tricas|reporte|cartograf[ií]a/iu,
+  evaluar:/ensayo|argumentaci[oó]n|debate|juicio|dictamen|recomendaci[oó]n|defensa|sustentaci[oó]n|rese[nñ]a cr[ií]tica|revisi[oó]n por pares|concepto t[eé]cnico|plan de correcci[oó]n|plan de mejora/iu,
+  crear:/prototipo|dise[nñ]o|propuesta|proyecto|producto|video|p[oó]dcast|maqueta|campa[nñ]a|portafolio|art[ií]culo|aplicaci[oó]n funcional|gui[oó]n/iu
+};
+const RE_PROCESO=/proceso|justific|decisi|versi[oó]n|borrador|bit[aá]cora|paso a paso|registro|argument|sustent|por qu[eé]|criterios/iu;
+const SUG_EVID={
+  recordar:'Un cuestionario corto con la explicación escrita de un error propio.',
+  comprender:'Una explicación de una página con un ejemplo propio que no esté en el material.',
+  aplicar:'El ejercicio resuelto sobre un caso nuevo, con el registro de cada paso.',
+  analizar:'Una matriz de análisis del caso con los hallazgos sustentados en datos.',
+  evaluar:'Un informe breve con el juicio emitido, los criterios usados y su justificación.',
+  crear:'Un prototipo en su segunda versión, con la justificación de las decisiones de diseño.'
+};
+
+/* amb: dónde sirve una herramienta sin nube: 'aula', 'casa' o 'ambos' */
+const HERRAMIENTAS={
+  comprobar:[{n:'Wayground',t:'evaluación interactiva con datos por pregunta',nube:true},
+             {n:'Kahoot',t:'cuestionario con puntaje inmediato',nube:true},
+             {n:'Google Forms',t:'formulario con respuestas exportables',nube:true},
+             {n:'Tarjetas de respuesta',t:'respuesta rápida a mano alzada, sin equipos',nube:false,amb:'aula'},
+             {n:'Cuestionario en PDF',t:'se descarga una vez y se responde sin conexión',nube:false,amb:'casa'}],
+  crear:[{n:'Escrito guiado por plantilla',t:'texto con estructura dada y casillas de argumentación',nube:false,amb:'ambos',si:/escrito|ensayo|informe|demanda|concepto|rese[ñn]a|art[ií]culo|ponencia/iu},
+         {n:'Maqueta o prototipo físico',t:'objeto construido y probado en el aula',nube:false,amb:'aula',si:/maqueta|prototipo|modelo f[ií]sico/iu},
+         {n:'Genially',t:'recurso interactivo con capas',nube:true},
+         {n:'Canva',t:'pieza gráfica con plantillas',nube:true},
+         {n:'Grabadora y editor de audio (Audacity)',t:'pieza sonora grabada y editada en el equipo',nube:false,amb:'ambos',si:/p[oó]dcast|audio|sonor|radio/iu},
+         {n:'Papelógrafo y marcadores',t:'producto visible construido en el aula',nube:false,amb:'aula'},
+         {n:'Presentación sin conexión',t:'archivo de PowerPoint o Impress trabajado en el equipo',nube:false,amb:'casa'}],
+  simular:[{n:'Cuaderno de código (Colab)',t:'entorno con datos reales y ejecución paso a paso',nube:true,si:/c[oó]digo|program|algoritmo|modelo|clasificador|dataset|script/iu},
+           {n:'Caso clínico con lista de chequeo',t:'escenario de paciente con criterios observables de desempeño',nube:false,amb:'aula',si:/cl[ií]nic|enfermer|paciente|protocolo|signos|dosis|diagn[oó]stic|cuidado|salud|m[eé]dic/iu},
+           {n:'Simulación con maniquí o escenificación',t:'procedimiento ejecutado en un escenario controlado',nube:false,amb:'aula',si:/maniqu[ií]|rcp|reanimaci[oó]n|simulaci[oó]n cl[ií]nica|escenificaci[oó]n/iu},
+           {n:'Caso jurídico con expediente',t:'expediente con hechos, normas y pretensiones para resolver',nube:false,amb:'aula',si:/jur[ií]dic|jurisprudencia|sentencia|demanda|tutela|expediente|contrato|derecho civil|derecho penal|c[oó]digo civil|norma jur[ií]dica/iu},
+           {n:'Laboratorio o salida de campo con guía',t:'observación registrada en el lugar, con formato de registro',nube:false,amb:'aula',si:/laboratorio|campo|muestra|experimento|observaci[oó]n de campo|ecosistema/iu},
+           {n:'Simulador PhET',t:'fenómeno manipulable con variables',nube:true,si:/f[ií]sic|qu[ií]mic|circuito|fen[oó]meno|energ[ií]a|\bondas?\b|fuerzas?\b/iu},
+           {n:'Hoja de cálculo compartida',t:'datos y fórmulas a la vista de todos',nube:true},
+           {n:'Caso impreso con datos',t:'escenario en papel para analizar en grupo',nube:false,amb:'aula'},
+           {n:'Hoja de cálculo sin conexión',t:'archivo con datos que se trabaja en el equipo',nube:false,amb:'casa'}],
+  colaborar:[{n:'Debate estructurado con roles',t:'posturas asignadas y turnos de réplica registrados',nube:false,amb:'aula',si:/debate|argument|postura|deliber|controvers|mesa redonda/iu},
+             {n:'Estudio de caso en grupo con acta',t:'acuerdos y desacuerdos que quedan por escrito',nube:false,amb:'aula',si:/caso|situaci[oó]n|problema real|contexto/iu},
+             {n:'Padlet',t:'muro donde cada aporte queda fechado y comentable',nube:true},
+             {n:'Miro',t:'pizarra infinita para construir en grupo',nube:true},
+             {n:'Documento compartido',t:'texto con historial de versiones y comentarios',nube:true},
+             {n:'Notas adhesivas en el tablero',t:'aportes visibles que se agrupan y discuten',nube:false,amb:'aula'},
+             {n:'Notas de voz en diferido',t:'aportes grabados que se envían cuando hay señal',nube:false,amb:'casa'}],
+  explicar:[{n:'Video corto compartido (Loom o Stream)',t:'explicación grabada que el grupo comenta',nube:true},
+            {n:'Edpuzzle',t:'video del estudiante con preguntas para sus compañeros',nube:true},
+            {n:'Grabación con el celular',t:'video o audio corto hecho sin conexión',nube:false,amb:'ambos'}]
+};
+const TIPO={comprobar:'comprobación rápida',crear:'creación de un producto',simular:'práctica o análisis con datos',
+  colaborar:'construcción colaborativa',explicar:'explicación oral o audiovisual'};
+const DEJA_VER={
+  recordar:'qué reconoce cada estudiante y dónde se equivoca',
+  comprender:'cómo lo explica cada estudiante con sus palabras',
+  aplicar:'el procedimiento paso a paso, y no solo el resultado',
+  analizar:'cómo separan los datos de las interpretaciones',
+  evaluar:'los criterios y los argumentos que hay detrás de cada juicio',
+  crear:'las versiones sucesivas y las decisiones de diseño'
+};
+const ACTIVIDAD={
+  recordar:h=>`responden un reto de reconocimiento con ${h}, comparan sus respuestas con la clave y explican por escrito uno de sus errores`,
+  comprender:h=>`explican el tema con sus propias palabras y un ejemplo que no esté en el material, y lo plasman con ${h}`,
+  aplicar:h=>`resuelven un caso nuevo con ${h} y dejan registrado cada paso, incluidos los intentos fallidos`,
+  analizar:h=>`descomponen un caso real con ${h}, separan los datos de las interpretaciones y sustentan cada hallazgo`,
+  evaluar:h=>`emiten un juicio sobre un caso con criterios declarados de antemano, lo exponen con ${h} y responden a la objeción de otra pareja`,
+  crear:h=>`construyen una primera versión del producto con ${h}, la someten a la revisión de otra pareja y entregan la versión ajustada`
+};
+
+const ESCALA=['Excelente 5.0','Sobresaliente 4.6–4.9','Bueno 4.0–4.5','Aceptable 3.0–3.9','No aceptable 1.0–2.9'];
+const PUNTOS=[5.0,4.7,4.2,3.4,2.0];
+const RUBRICA_DISENO=[
+  { c:'Pertinencia del resultado', d:'El resultado es observable y la evidencia lo demuestra.',
+    n:['Resultado observable y evidencia que lo demuestra sin ambigüedad.',
+       'Resultado observable y evidencia pertinente, con algún aspecto por precisar.',
+       'Resultado observable, pero la evidencia cubre solo una parte de lo declarado.',
+       'Resultado general o evidencia que lo roza sin demostrarlo.',
+       'El resultado no se puede observar o la evidencia no corresponde.'] },
+  { c:'Coherencia actividad · herramienta', d:'La herramienta produce la evidencia; no se eligió por novedad.',
+    n:['La herramienta deja ver justo lo que el verbo pide y cabe en el aula.',
+       'La herramienta produce la evidencia con una limitación menor.',
+       'La herramienta sirve, aunque registra el producto más que el proceso.',
+       'La herramienta encaja a medias con la modalidad o la restricción.',
+       'La herramienta no permite obtener la evidencia.'] },
+  { c:'Calidad de la evidencia', d:'Permite distinguir comprensión de reproducción.',
+    n:['Obliga a mostrar el proceso y a justificar decisiones; no se resuelve copiando.',
+       'Exige un producto de alto nivel; el proceso queda parcialmente visible.',
+       'Muestra el producto final y parte del proceso.',
+       'Se concentra en el producto; se puede responder sin comprender.',
+       'No hay un entregable reconocible que valorar.'] },
+  { c:'Viabilidad en el aula', d:'Cabe en el tiempo y sobrevive a las restricciones.',
+    n:['Cabe con holgura y deja margen para retroalimentar.',
+       'Cabe en el tiempo con ajustes menores.',
+       'Cabe con esfuerzo; queda poco margen para el cierre.',
+       'Requiere más tiempo o recursos de los declarados.',
+       'No es ejecutable con las condiciones declaradas.'] }
+];
+
+const ESCALA_EST=['Excelente 4.6–5.0','Bueno 4.0–4.5','Aceptable 3.0–3.9','No aceptable 1.0–2.9'];
+const RUBRICA_EST={
+  recordar:[
+    ['Precisión','Toda la información es correcta y usa los términos del campo.','Información correcta con uno o dos errores menores.','Varios errores que no alteran la idea central.','Errores que distorsionan los conceptos básicos.'],
+    ['Completitud','Cubre todos los elementos pedidos.','Cubre la mayoría de los elementos.','Cubre apenas lo esencial.','Omite elementos centrales.'],
+    ['Organización','El orden permite verificar cada dato con facilidad.','Orden claro con algún salto.','Orden parcial.','Sin orden reconocible.'],
+    ['Autocorrección','Detecta sus errores y explica por qué lo eran.','Corrige sus errores sin explicarlos.','Corrige solo con ayuda.','No revisa sus respuestas.']],
+  comprender:[
+    ['Explicación propia','Explica con sus palabras sin perder precisión.','Explica con sus palabras con imprecisiones menores.','Parafrasea la fuente de cerca.','Reproduce la fuente sin transformarla.'],
+    ['Ejemplos','Aporta un ejemplo propio y pertinente.','Aporta un ejemplo propio poco desarrollado.','Reutiliza los ejemplos del material.','No ofrece ejemplos.'],
+    ['Relaciones','Conecta los conceptos y muestra cómo se afectan.','Conecta la mayoría de los conceptos.','Presenta los conceptos uno al lado del otro.','Presenta ideas sueltas o confundidas.'],
+    ['Claridad','Alguien ajeno al curso lo entendería.','Claro para el grupo, con vacíos menores.','Se entiende con esfuerzo.','No se entiende lo que quiere decir.']],
+  aplicar:[
+    ['Procedimiento','Elige y ejecuta el procedimiento adecuado sin errores.','Procedimiento adecuado con errores menores.','Procedimiento adecuado con errores que afectan el resultado.','Procedimiento inadecuado para el caso.'],
+    ['Resultado','Resultado correcto y verificado.','Resultado correcto sin verificar.','Resultado aproximado.','Resultado incorrecto o ausente.'],
+    ['Registro del proceso','Registra cada paso, incluidos los intentos fallidos.','Registra los pasos principales.','Registra solo el resultado y algún paso.','No deja registro del proceso.'],
+    ['Transferencia','Resuelve un caso distinto al practicado.','Resuelve una variación del caso practicado.','Resuelve solo el caso practicado.','No logra resolver el caso practicado.']],
+  analizar:[
+    ['Descomposición','Separa el caso en partes relevantes y explica por qué esas.','Separa en partes relevantes.','Separa en partes, algunas irrelevantes.','Describe el caso sin descomponerlo.'],
+    ['Uso de datos','Cada hallazgo se apoya en datos citados.','La mayoría de los hallazgos se apoya en datos.','Mezcla datos con impresiones.','Afirma sin datos.'],
+    ['Inferencias','Las conclusiones se siguen de los hallazgos y señalan sus límites.','Las conclusiones se siguen de los hallazgos.','Algunas conclusiones no se siguen de los hallazgos.','Las conclusiones no guardan relación con el análisis.'],
+    ['Comunicación','El análisis se puede reconstruir paso a paso.','Estructura clara con vacíos menores.','Estructura difícil de seguir.','No se distingue el razonamiento.']],
+  evaluar:[
+    ['Criterios','Declara criterios explícitos y explica por qué son los adecuados.','Declara criterios explícitos.','Los criterios se intuyen, no se declaran.','Juzga por gusto o por autoridad.'],
+    ['Argumento','El juicio se sostiene con razones encadenadas.','El juicio se sostiene con razones, alguna débil.','Razones sueltas que no llegan al juicio.','Afirma sin argumentar.'],
+    ['Evidencia','Usa evidencia verificable y la cita.','Usa evidencia pertinente sin citarla.','Usa ejemplos anecdóticos.','No usa evidencia.'],
+    ['Alternativas','Considera una postura contraria y la responde.','Menciona una postura contraria.','Reconoce que hay otras posturas, sin nombrarlas.','Presenta su juicio como el único posible.']],
+  crear:[
+    ['Pertinencia','El producto responde al problema y al usuario declarados.','Responde al problema con ajustes menores pendientes.','Responde al problema de forma parcial.','No responde al problema planteado.'],
+    ['Funcionamiento','El producto funciona o es coherente en todas sus partes.','Funciona con fallas menores.','Funciona solo en parte.','No funciona o está incompleto.'],
+    ['Decisiones de diseño','Justifica cada decisión importante y lo que descartó.','Justifica las decisiones principales.','Describe lo que hizo sin justificarlo.','No da cuenta de sus decisiones.'],
+    ['Iteración','Muestra dos versiones y qué cambió entre ellas con la retroalimentación.','Muestra ajustes tras la retroalimentación.','Recibe retroalimentación sin incorporarla.','Entrega una única versión sin revisar.']]
+};
+const PESOS=[30,30,20,20];
+
+/* ============================================================
+   4 · MOTOR DE ALINEACIÓN
+   ============================================================ */
+const ETAPAS={preescolar:['Preescolar',30],primaria:['Básica primaria',45],secundaria:['Básica secundaria',55],
+  media:['Media',55],tecnica:['Técnica y tecnológica',120],pregrado:['Pregrado',60],posgrado:['Posgrado',90],
+  continua:['Educación continua',60]};
+const MODALIDADES={presencial:'presencial',virtual:'virtual','hibrida':'híbrida','remota-baja':'remota con conexión intermitente'};
+const estado={ etapa:'pregrado', modalidad:'presencial', duracion:60, sesiones:1, restriccion:'conectividad',
+  herr:null, fijado:null, tocado:{etapa:false,restr:false,duracion:false} };
+const nivelTexto=()=>ETAPAS[estado.etapa][0]+' · '+MODALIDADES[estado.modalidad];
+const leer=()=>({ area:$('area').value.trim(), rae:$('rae').value.trim(), evidencia:$('evidencia').value.trim(),
+  nivel:nivelTexto(), etapa:estado.etapa, modalidad:estado.modalidad,
+  duracion:estado.duracion, sesiones:estado.sesiones, restriccion:estado.restriccion, herr:estado.herr,
+  fijado:estado.fijado });
+
+function buscarVerbo(txt){
+  let mejor=null;
+  const probar=(re,nivel)=>{ re.lastIndex=0; let m;
+    while((m=re.exec(txt))){ const idx=m.index+m[1].length;
+      if(!mejor || idx<mejor.idx) mejor={idx,palabra:m[2],nivel}; break; } };
+  NIVELES.forEach(n=>probar(RE_NIVEL[n],n));
+  probar(RE_NO,'no');
+  return mejor;
+}
+function nivelEvidencia(txt){
+  const hallados=[];
+  NIVELES.forEach(n=>{ const m=EVIDENCIAS[n].exec(txt); if(m) hallados.push({nivel:n,palabra:m[0].toLowerCase()}); });
+  if(!hallados.length) return null;
+  const r=hallados[hallados.length-1];        /* NIVELES va de menor a mayor: el último es el más alto */
+  if(hallados.length>1) r.todas=hallados.map(x=>x.nivel);
+  return r;
+}
+function elegirHerramienta(d,nv,gap){
+  const r=d.rae.toLowerCase();
+  let grupo={recordar:'comprobar',comprender:'crear',aplicar:'simular',analizar:'colaborar',evaluar:'colaborar',crear:'crear'}[nv];
+  if(nv==='comprender' && /explic|comunic|expres|expon/.test(r)) grupo='explicar';
+  if(['aplicar','analizar','evaluar'].includes(nv) && /audit|m[eé]tric|desagreg|dataset|datos|modelo|clasificador|algoritmo|estad[ií]stic|c[aá]lcul|program|financier|indicador|presupuest|contab/.test(r)) grupo='simular';
+  const virtual=/virtual/.test(d.nivel), sinNube=d.restriccion!=='conectividad';
+  const ctx=d.area+' '+d.rae+' '+d.evidencia;
+  const ctxFuerte=d.area+' '+d.rae;               /* lo que el docente quiere lograr pesa más que el entregable */
+  const orden=h=>!h.si?2:(h.si.test(ctxFuerte)?0:h.si.test(ctx)?1:3);
+  const todas=[...HERRAMIENTAS[grupo]].sort((a,b)=>orden(a)-orden(b));
+  let aptas=todas.filter(h=>!(sinNube&&h.nube));
+  const porModalidad=aptas.filter(h=>h.nube || !virtual || h.amb!=='aula');
+  const encaja=porModalidad.length>0;
+  if(encaja) aptas=porModalidad;
+  const descartadas=todas.filter(h=>!aptas.includes(h)).map(h=>({n:h.n, por:(sinNube&&h.nube)?'requiere conexión':'solo sirve en un salón'}));
+  let herr=aptas.find(h=>h.n===d.herr) || aptas[0];
+  return {grupo,herr,aptas,descartadas,encaja,elegidaPorDocente:herr!==aptas[0]};
+}
+
+function analizar(d){
+  const v=d.rae.length>=8 ? buscarVerbo(d.rae) : null;
+  const observable=v && v.nivel!=='no';
+  const fijado=(d.fijado&&d.fijado.nivel)||null;
+  const nv=fijado || (observable ? v.nivel : 'aplicar');
+  const iV=NIVELES.indexOf(nv);
+  let ev=d.evidencia.length>=12 ? nivelEvidencia(d.evidencia) : null;
+  if(d.fijado&&d.fijado.nivelEvidencia&&ev) ev=Object.assign({},ev,{nivel:d.fijado.nivelEvidencia,fijado:true});
+  if(d.fijado&&d.fijado.nivelEvidencia&&!ev) ev={nivel:d.fijado.nivelEvidencia,palabra:'(fijada por usted)',fijado:true};
+  const iE=ev ? NIVELES.indexOf(ev.nivel) : -1;
+  const proceso=RE_PROCESO.test(d.evidencia);
+  const H=elegirHerramienta(d,nv);
+  const crit=[];
+  const pend=m=>({col:-1,estado:'',msg:m,acc:[]});
+  const fijadoActivo=!!fijado;
+  const verbo=v ? v.palabra.charAt(0).toUpperCase()+v.palabra.slice(1).toLowerCase() : '';
+
+  /* 1 · pertinencia */
+  if(d.rae.length<12) crit.push(pend('Escriba el resultado de aprendizaje para empezar.'));
+  else if(v && !observable) crit.push({col:4,msg:`«${verbo}» no se puede observar en el aula. ¿Qué haría el estudiante para demostrarlo? Pruebe con uno de estos verbos:`,
+    acc:SUGERIDOS.map(s=>({t:s,a:'verbo',v:s}))});
+  else if(!v) crit.push({col:3,msg:'No encuentro un verbo observable. Empiece la frase con uno:',acc:SUGERIDOS.map(s=>({t:s,a:'iniciar',v:s}))});
+  else if(d.evidencia.length<12) crit.push({col:2,msg:`«${verbo}» es observable (nivel ${nv}). Falta declarar la evidencia.`,acc:[]});
+  else if(!ev) crit.push({col:2,msg:`«${verbo}» es observable (nivel ${nv}), pero no reconozco el entregable. Nómbrelo: matriz, informe, prototipo, video…`,
+    acc:[{t:'Usar una evidencia sugerida',a:'evid',v:SUG_EVID[nv]}]});
+  else if(iE>=iV) crit.push({col:0,msg:`«${verbo}» es observable (nivel ${nv}) y «${ev.palabra}» lo demuestra.`,acc:[]});
+  else if(iE===iV-1) crit.push({col:1,msg:`«${verbo}» pide ${nv}; «${ev.palabra}» llega hasta ${ev.nivel}. Está cerca.`,acc:[{t:'Ver evidencia sugerida',a:'evid',v:SUG_EVID[nv]}]});
+  else crit.push({col:3,msg:`El verbo pide ${nv}, pero «${ev.palabra}» solo demuestra ${ev.nivel}. La evidencia se queda corta.`,
+    acc:[{t:'Usar: '+SUG_EVID[nv].toLowerCase().replace(/\.$/,''),a:'evid',v:SUG_EVID[nv]}]});
+
+  /* 2 · coherencia */
+  if(!observable) crit.push(pend('Se calcula cuando el resultado tenga un verbo observable.'));
+  else if(!H.encaja) crit.push({col:3,msg:`Sin conexión y en modalidad virtual quedan pocas opciones: ${H.herr.n} es lo más cercano. Revise la modalidad o la restricción.`,acc:[]});
+  else if(d.restriccion!=='conectividad') crit.push({col:1,msg:`Se descartaron ${H.descartadas.length} herramientas que no caben en su aula. ${H.herr.n} funciona sin conexión y deja ver ${DEJA_VER[nv]}.`,acc:[]});
+  else crit.push({col:0,msg:`${H.herr.n} deja ver ${DEJA_VER[nv]}.`+(H.elegidaPorDocente?' Elegida por usted entre las alternativas.':''),acc:[]});
+
+  /* 3 · calidad de la evidencia */
+  const masProceso={t:'Pedir también la justificación',a:'proceso'};
+  if(d.evidencia.length<12) crit.push(pend('Declare la evidencia para valorarla.'));
+  else if(!ev) crit.push({col:proceso?2:4,msg:'No hay un entregable reconocible. ¿Qué archivo, objeto o presentación recibiría usted?',acc:[{t:'Usar una evidencia sugerida',a:'evid',v:SUG_EVID[nv]}]});
+  else if(iE===0) crit.push({col:proceso?2:3,msg:proceso?'Un cuestionario con explicación deja ver algo del razonamiento.':'Un cuestionario se puede responder sin comprender. Pida que expliquen al menos un error.',acc:proceso?[]:[masProceso]});
+  else if(iE>=3) crit.push(proceso?{col:0,msg:'Obliga a mostrar el proceso y a justificar decisiones: no se resuelve copiando.',acc:[]}
+    :{col:1,msg:'Producto de alto nivel. Si además pide la justificación de las decisiones, el proceso queda visible.',acc:[masProceso]});
+  else crit.push(proceso?{col:1,msg:'Muestra el producto y el razonamiento que lo sostiene.',acc:[]}
+    :{col:2,msg:'Muestra el producto final; el proceso queda a medias.',acc:[masProceso]});
+
+  /* 4 · viabilidad */
+  if(/virtual/.test(d.nivel) && d.restriccion==='sinequipos')
+    crit.push({col:4,msg:'Modalidad virtual y «sin equipos por estudiante» se contradicen. Revise una de las dos decisiones.',acc:[]});
+  else if(!observable) crit.push(pend('Se calcula cuando el resultado tenga un verbo observable.'));
+  else{
+    const pide=[60,60,60,90,90,120][iV];
+    const ses=(+d.sesiones||1), total=d.duracion*ses;
+    const dif=total-pide;
+    const etiqueta=ses>1?`${ses} sesiones de ${d.duracion} min`:`${d.duracion} minutos`;
+    const accSes=ses<3?[{t:'Dividir en 2 sesiones',a:'ses',v:2}]:[];
+    if(dif>=30 || (dif===0 && iV<=2)) crit.push({col:0,msg:`${NOMBRE[nv]} cabe con holgura en ${etiqueta} y deja margen para retroalimentar.`,acc:[]});
+    else if(dif===0) crit.push({col:1,msg:`${NOMBRE[nv]} cabe en ${etiqueta} si el inicio es breve.`,acc:[]});
+    else if(dif===-30) crit.push({col:2,msg:`${NOMBRE[nv]} en ${etiqueta} cabe con esfuerzo y deja poco cierre.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
+    else crit.push({col:3,msg:`${NOMBRE[nv]} necesita más de ${etiqueta}. Amplíe la sesión o divídala.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
+  }
+
+  crit.forEach((k,i)=>{ k.c=RUBRICA_DISENO[i].c; if(k.col>=0){ k.pt=PUNTOS[k.col]; k.estado=k.col<=1?'ok':k.col===2?'medio':'mal'; } });
+  const val=crit.filter(k=>k.col>=0);
+  const completo=val.length===4;
+  const nota=val.length ? Math.round(val.reduce((a,k)=>a+k.pt,0)/val.length*10)/10 : null;
+  const etq=nota===null?'':nota>=4.95?'Excelente':nota>=4.6?'Sobresaliente':nota>=4.0?'Bueno':nota>=3.0?'Aceptable':'No aceptable';
+  return {v,verbo,observable,nv,ev,H,crit,completo,nota,etq};
+}
+const coma=n=>n.toFixed(1).replace('.',',');
+
+function pintarSemaforo(A){
+  $('criterios').innerHTML=A.crit.map(k=>`
+    <div class="crit"><i class="luz ${k.estado}"></i><div class="nom">${esc(k.c)}</div><div class="pt">${k.col>=0?coma(k.pt):'—'}</div>
+      <div class="msg">${esc(k.msg)}</div>
+      ${k.acc.length?`<div class="acc">${k.acc.map(a=>`<button data-a="${a.a}" data-v="${esc(a.v??'')}">${esc(a.t)}</button>`).join('')}</div>`:''}
+    </div>`).join('');
+  const C=276.5;
+  if(A.completo){
+    $('medVal').style.opacity=1; $('medVal').style.strokeDashoffset=C*(1-(A.nota-1)/4);
+    $('medNum').textContent=coma(A.nota); $('medEtq').textContent=A.etq;
+    const caja=$('medNum').closest('.medidor, .semaforo, div');
+    if(caja) caja.setAttribute('aria-label',`Alineación del diseño: ${coma(A.nota)} de 5,0, ${A.etq}`);
+  }else{
+    $('medVal').style.opacity=0; $('medVal').style.strokeDashoffset=C; $('medNum').textContent='—';
+    $('medEtq').textContent=A.crit.some(k=>k.estado==='mal')?'Hay algo por revisar':'Esperando sus decisiones';
+  }
+  $('verboChip').innerHTML = A.v
+    ? `<span class="verbo-chip"><i class="luz ${A.observable?'ok':'mal'}" style="margin:0"></i>Verbo detectado: <b>${esc(A.verbo)}</b> · ${A.observable?'nivel '+A.nv:'no observable'}
+        <label class="nota" style="margin-left:10px">¿No es así?
+          <select id="fijarNivel" aria-label="Corregir el nivel del verbo" style="font:inherit;font-size:11.5px;padding:2px 6px;border-radius:6px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto)">
+            <option value="">detectado</option>
+            ${NIVELES.map(n=>`<option value="${n}" ${(estado.fijado&&estado.fijado.nivel===n)?'selected':''}>${n}</option>`).join('')}
+          </select>
+        </label></span>` : '';
+  const d=leer(), p=[d.area.length>3, d.rae.length>=12, d.evidencia.length>=12, estado.tocado.nivel, estado.tocado.restr];
+  document.querySelectorAll('#progreso i').forEach((b,i)=>b.classList.toggle('on',p[i]));
+}
+
+/* ============================================================
+   5 · GENERACIÓN DE LAS PIEZAS
+   ============================================================ */
+function tiempos(t){
+  const r5=n=>Math.max(5,Math.round(n/5)*5);
+  if(t===60) return [{t:'Inicio',m:10},{t:'Desarrollo',m:30},{t:'Cierre',m:20}];
+  if(t===90) return [{t:'Inicio',m:15},{t:'Desarrollo',m:50},{t:'Cierre',m:25}];
+  if(t===120) return [{t:'Inicio',m:20},{t:'Desarrollo',m:65},{t:'Cierre',m:35}];
+  const ini=r5(t*0.17), fin=r5(t*0.23);
+  return [{t:'Inicio',m:ini},{t:'Desarrollo',m:Math.max(10,t-ini-fin)},{t:'Cierre',m:fin}];
+}
+const NOM_RESTR={conectividad:'conectividad estable',sinconexion:'conectividad inestable',sinequipos:'sin equipos por estudiante'};
+const minus=s=>{ s=s.replace(/\.+$/,''); return s.charAt(0).toLowerCase()+s.slice(1); };
+const tituloDe=d=>{ const p=d.area.split('·'); const t=(p[1]||p[0]||'Mi actividad').trim(); return t.charAt(0).toUpperCase()+t.slice(1); };
+
+function generar(sinScroll){
+  const d=leer(), A=analizar(d);
+  pintarSemaforo(A);
+  if(d.rae.length<12 || d.evidencia.length<12){
+    $('estado').textContent='Aún faltan dos datos: el resultado de aprendizaje y la evidencia.';
+    $('estado').style.color='var(--alerta)';
+    if(sinScroll!==true) $(d.rae.length<12?'rae':'evidencia').focus();
+    return false;
+  }
+  $('estado').textContent = A.crit.some(k=>k.estado==='mal')
+    ? 'Generada. El semáforo señala algo por revisar antes de llevarla al aula.'
+    : 'Lista. Puede ajustar cualquier decisión y se recalcula.';
+  $('estado').style.color = A.crit.some(k=>k.estado==='mal') ? 'var(--alerta)' : 'var(--ok)';
+
+  const {nv,H}=A, herr=H.herr, bloques=tiempos(d.duracion);
+  const grupos = d.restriccion==='sinequipos' ? 'grupos de tres con un solo dispositivo' : 'parejas';
+  const modo = /virtual/.test(d.nivel) ? 'en salas de trabajo' : /híbrido/.test(d.nivel) ? 'mezclando presentes y remotos' : 'en el aula';
+
+  /* ficha */
+  const ficha=[
+    {k:'1 · ¿Qué queremos que aprendan?', v:esc(d.rae), s:A.observable?`Verbo «${esc(A.verbo)}», nivel ${nv} de la taxonomía de Bloom revisada.`:'Revise el verbo: el semáforo indica que no es observable.'},
+    {k:'2 · Actividad propuesta', v:`En ${grupos}, ${modo}, los estudiantes ${ACTIVIDAD[nv](esc(herr.n))}.`, s:bloques.map(b=>`${b.t} ${b.m} min`).join(' · ')},
+    {k:'3 · Herramienta digital', v:`<b>${esc(herr.n)}</b> — ${esc(herr.t)}.`, s:herr.nube?'Requiere conexión.':'Funciona sin conexión.'},
+    {k:'4 · ¿Por qué esa herramienta ayuda al objetivo?', v:`Porque deja ver ${DEJA_VER[nv]}, que es lo que pide el verbo «${esc(A.verbo.toLowerCase()||nv)}». Con ella se obtiene la evidencia declarada: ${esc(minus(d.evidencia))}.`,
+      s:H.descartadas.length?`Se descartaron: ${H.descartadas.map(x=>esc(x.n)+' ('+x.por+')').join(', ')}.`:''},
+    {k:'5 · ¿Qué evidencia podría demostrar que aprendieron?', v:esc(d.evidencia), s:'Se valora con la «Rúbrica para el estudiante».'}
+  ];
+  $('salida-ficha').innerHTML=ficha.map(f=>`<div class="item"><div class="k">${f.k}</div><div class="v">${f.v}${f.s?`<small>${f.s}</small>`:''}</div></div>`).join('');
+
+  /* secuencia */
+  const detalle={
+    Inicio:`Se presenta el reto y se muestra la rúbrica con la que se va a valorar. Cada estudiante anota qué cree que deberá demostrar al final.`,
+    Desarrollo:`En ${grupos}, ${ACTIVIDAD[nv](esc(herr.n))}. El docente circula y pregunta por las decisiones, no por el avance.`,
+    Cierre:`Tres minutos por equipo para mostrar la evidencia y contrastarla con la rúbrica. Cada estudiante anota qué haría distinto la próxima vez.`
+  };
+  $('salida-secuencia').innerHTML=`<p class="nota" style="margin-bottom:8px;font-size:13.5px">${(+d.sesiones||1)>1?(+d.sesiones)+' sesiones de '+d.duracion+' minutos':'Sesión de '+d.duracion+' minutos'} · ${esc(d.nivel)} · ${NOM_RESTR[d.restriccion]}</p>`+
+    bloques.map(b=>`<div class="linea"><div class="t">${b.m} min</div><div class="d"><b>${b.t}.</b> ${detalle[b.t]}</div></div>`).join('')+
+    `<div class="linea"><div class="t">Total</div><div class="d"><b>${bloques.reduce((a,b)=>a+b.m,0)} minutos</b> · herramienta: ${esc(herr.n)}</div></div>`;
+
+  /* rúbrica del diseño, aplicada */
+  $('salida-diseno').innerHTML=`
+    <div class="resumen-nota"><strong>${A.completo?coma(A.nota):'—'}</strong> / 5,0 · <b style="color:var(--texto)">${A.etq}</b> · promedio de los cuatro criterios</div>
+    <div class="tabla"><table><thead><tr><th style="width:19%">Criterio</th>${ESCALA.map(n=>`<th>${n}</th>`).join('')}</tr></thead><tbody>
+    ${RUBRICA_DISENO.map((k,i)=>`<tr><td><b>${k.c}</b><span class="d">${k.d}</span></td>${k.n.map((x,j)=>`<td class="${A.crit[i].col===j?'logro':''}">${x}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>
+    ${A.crit.map(k=>`<div class="linea"><div class="t">${k.col>=0?coma(k.pt):'—'}</div><div class="d"><b>${esc(k.c)}.</b> ${esc(k.msg)}</div></div>`).join('')}
+    <p class="nota" style="margin-top:12px">Escala del módulo. Estimación por reglas sobre las decisiones declaradas; sirve para conversar el diseño, no para reemplazar el juicio docente.</p>`;
+
+  /* rúbrica para el estudiante */
+  $('salida-estudiante').innerHTML=`
+    <p class="nota" style="font-size:13.5px;margin-bottom:6px">Evidencia que se valora: <b style="color:var(--texto)">${esc(d.evidencia)}</b></p>
+    <div class="tabla"><table><thead><tr><th style="width:17%">Criterio · nivel ${nv}</th><th style="width:7%">Peso</th>${ESCALA_EST.map(n=>`<th>${n}</th>`).join('')}</tr></thead><tbody>
+    ${RUBRICA_EST[nv].map((f,i)=>`<tr><td><b>${f[0]}</b></td><td><b>${PESOS[i]} %</b></td>${f.slice(1).map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>
+    <p class="nota" style="margin-top:12px">Los criterios salen del nivel del verbo «${esc(A.verbo.toLowerCase()||nv)}». Muéstresela a los estudiantes al inicio de la sesión.</p>`;
+
+  /* trazabilidad */
+  $('salida-trazabilidad').innerHTML=`
+    <div class="linea"><div class="t">Verbo</div><div class="d">«${esc(A.verbo||'—')}» se ubica en el nivel <b>${nv}</b>. Ese nivel pide una herramienta de <b>${TIPO[H.grupo]}</b>.
+      <br><span class="nota">${A.fijado?'Nivel fijado por usted; el motor lo respeta.':'La regla que lo ubica ahí: la palabra «'+esc((A.verbo||'').toLowerCase())+'» está en la lista del nivel '+nv+'.'}</span></div></div>
+    <div class="linea"><div class="t">Restricción</div><div class="d">${d.restriccion==='conectividad'?'Con conectividad estable se prioriza la herramienta que mejor registra el proceso.':'Con '+NOM_RESTR[d.restriccion]+' se descartan las herramientas en la nube: la actividad debe sostenerse sin ellas.'}</div></div>
+    <div class="linea"><div class="t">Alternativas</div><div class="d">${H.aptas.map(h=>`<button class="chip ${h===herr?'on':''}" data-herr="${esc(h.n)}" title="${esc(h.t)}">${esc(h.n)}</button>`).join('')}<br><span class="nota">Toque otra para cambiar la herramienta; todo se recalcula.</span></div></div>
+    <div class="linea"><div class="t">Descartadas</div><div class="d">${H.descartadas.map(h=>`<span class="chip">${esc(h.n)} · ${h.por}</span>`).join('') || 'Ninguna: sus condiciones permiten todas.'}</div></div>
+    <div class="linea"><div class="t">Evidencia</div><div class="d"><b>${esc(d.evidencia)}</b>${A.ev?` — reconocida como «${esc(A.ev.palabra)}», nivel ${A.ev.nivel}${A.ev.fijado?' (fijado por usted)':''}.`+(A.ev.todas&&A.ev.todas.length>1?` También aparecen: ${A.ev.todas.filter(x=>x!==A.ev.nivel).join(', ')}; se toma el más alto.`:''):''}</div></div>`;
+
+  $('docArea').textContent=d.area||'—'; $('docNivel').textContent=d.nivel;
+  $('docDuracion').textContent=d.duracion+' minutos'; $('docRestriccion').textContent=NOM_RESTR[d.restriccion];
+  $('docNota').textContent=A.completo?`${coma(A.nota)} / 5,0 · ${A.etq}`:'—';
+  $('docTitulo').textContent=tituloDe(d);
+  $('docLead').textContent='Ficha de cinco campos, secuencia de la sesión, rúbrica del diseño aplicada, rúbrica para el estudiante y trazabilidad de la herramienta.';
+
+  $('resultado').classList.add('visible');
+  if(sinScroll!==true) $('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+  return true;
+}
+
+/* recalcular en vivo */
+let tRec;
+function refrescar(){
+  clearTimeout(tRec);
+  tRec=setTimeout(()=>{
+    if($('resultado').classList.contains('visible') && leer().rae.length>=12 && leer().evidencia.length>=12) generar(true);
+    else pintarSemaforo(analizar(leer()));
+  },140);
+}
+function fijarNivelManual(v){
+  estado.fijado = v ? Object.assign({}, estado.fijado, {nivel:v}) : null;
+  generar(true); pintarSemaforo(analizar(leer()));
+}
+function fijarOpcion(grupo,valor){
+  const caja=document.getElementById(grupo);
+  if(caja && !caja.getAttribute('role')){ caja.setAttribute('role','radiogroup'); }
+  document.querySelectorAll('#'+grupo+' .opcion').forEach(o=>{
+    const on=o.dataset.v===String(valor);
+    o.classList.toggle('on',on);
+    o.setAttribute('role','radio');
+    o.setAttribute('aria-checked',on?'true':'false');
+    o.setAttribute('aria-pressed',on?'true':'false');
+  });
+}
+function cargar(d){
+  $('area').value=d.area||''; $('rae').value=d.rae||''; $('evidencia').value=d.evidencia||'';
+  /* v2 trae etapa y modalidad; v1 traía una sola cadena «Pregrado · presencial» */
+  let etapa=d.etapa, modalidad=d.modalidad;
+  if(!etapa && d.nivel){
+    const partes=String(d.nivel).split('·').map(x=>x.trim().toLowerCase());
+    const mapaEtapa={'preescolar':'preescolar','básica primaria':'primaria','basica primaria':'primaria','primaria':'primaria',
+      'básica secundaria':'secundaria','basica secundaria':'secundaria','secundaria':'secundaria','media':'media',
+      'técnica':'tecnica','tecnica':'tecnica','pregrado':'pregrado','posgrado':'posgrado','educación continua':'continua','continua':'continua'};
+    etapa=mapaEtapa[partes[0]]||'pregrado';
+    modalidad=/virtual/.test(partes[1]||'')?'virtual':/híb|hib/.test(partes[1]||'')?'hibrida':/presencial/.test(partes[1]||'')?'presencial':'presencial';
+  }
+  estado.etapa=ETAPAS[etapa]?etapa:'pregrado';
+  estado.modalidad=MODALIDADES[modalidad]?modalidad:'presencial';
+  estado.duracion=(+d.duracion>=20&&+d.duracion<=240)?+d.duracion:60;
+  estado.sesiones=(+d.sesiones>=1&&+d.sesiones<=3)?+d.sesiones:1;
+  estado.restriccion=NOM_RESTR[d.restriccion]?d.restriccion:'conectividad'; estado.herr=d.herr||null;
+  estado.fijado=d.fijado||null;
+  estado.tocado={etapa:true,restr:true,duracion:(+d.duracion||60)!==ETAPAS[estado.etapa][1]};
+  fijarOpcion('etapa',estado.etapa); fijarOpcion('modalidad',estado.modalidad);
+  fijarOpcion('duracion',estado.duracion); fijarOpcion('sesiones',estado.sesiones); fijarOpcion('restriccion',estado.restriccion);
+  const otro=$('duracionOtro');
+  if(otro){ const conocido=[30,45,55,60,90,120].includes(estado.duracion);
+    otro.style.display=conocido?'none':'inline-block'; if(!conocido) otro.value=estado.duracion; }
+}
+
+/* ============================================================
+   6 · EVENTOS DEL FORMULARIO Y DEL SEMÁFORO
+   ============================================================ */
+['area','rae','evidencia'].forEach(id=>$(id).addEventListener('input',()=>{ ocultarAvisos(); refrescar(); }));
+$('etapa').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.etapa=b.dataset.v; estado.herr=null; estado.tocado.etapa=true;
+  if(!estado.tocado.duracion){ estado.duracion=ETAPAS[estado.etapa][1];
+    fijarOpcion('duracion',estado.duracion); $('duracionOtro').style.display='none'; }
+  fijarOpcion('etapa',estado.etapa); ocultarAvisos(); refrescar();
+});
+$('modalidad').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.modalidad=b.dataset.v; estado.herr=null;
+  fijarOpcion('modalidad',estado.modalidad); ocultarAvisos(); refrescar();
+});
+$('duracion').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  const v=parseInt(b.dataset.v);
+  if(v===0){ $('duracionOtro').style.display='inline-block'; $('duracionOtro').focus(); }
+  else { $('duracionOtro').style.display='none'; estado.duracion=v; estado.tocado.duracion=true; }
+  fijarOpcion('duracion',b.dataset.v); ocultarAvisos(); refrescar();
+});
+$('duracionOtro').addEventListener('input',e=>{
+  const v=Math.max(20,Math.min(240,parseInt(e.target.value)||0));
+  if(v){ estado.duracion=v; estado.tocado.duracion=true; ocultarAvisos(); refrescar(); }
+});
+$('sesiones').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.sesiones=parseInt(b.dataset.v); fijarOpcion('sesiones',estado.sesiones); ocultarAvisos(); refrescar();
+});
+$('restriccion').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.restriccion=b.dataset.v; estado.tocado.restr=true;
+  fijarOpcion('restriccion',estado.restriccion); ocultarAvisos(); refrescar();
+});
+$('criterios').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-a]'); if(!b) return;
+  const a=b.dataset.a, v=b.dataset.v, rae=$('rae'), ev=$('evidencia');
+  if(a==='verbo'){
+    const f=buscarVerbo(rae.value); if(!f) return;
+    const nuevo=/^\p{Lu}/u.test(f.palabra) ? v.charAt(0).toUpperCase()+v.slice(1) : v;
+    const antes=rae.value.slice(0,f.idx), resto=rae.value.slice(f.idx+f.palabra.length);
+    const sujeto=/^\s*(que\s+)?(el|la|los|las)\s+(estudiantes?|alumn[oa]s?|participantes?|futur[oa]s?\s+\p{L}+)\s+(\p{L}+\s+)?$/iu.test(antes);
+    rae.value = sujeto ? v.charAt(0).toUpperCase()+v.slice(1)+resto : antes+nuevo+resto;
+    avisar('Verbo cambiado. Revise que la frase siga diciendo lo que usted quiere.');
+  }else if(a==='iniciar'){
+    const t=rae.value.trim();
+    rae.value=v.charAt(0).toUpperCase()+v.slice(1)+' '+t.charAt(0).toLowerCase()+t.slice(1);
+  }else if(a==='evid'){ ev.value=v; avisar('Evidencia sugerida cargada. Ajústela a su tema.');
+  }else if(a==='proceso'){ ev.value=ev.value.trim().replace(/\.*$/,'')+', con una justificación breve de las decisiones tomadas.';
+  }else if(a==='dur'){ estado.duracion=parseInt(v); estado.tocado.duracion=true; fijarOpcion('duracion',v); }
+  else if(a==='ses'){ estado.sesiones=parseInt(v); fijarOpcion('sesiones',estado.sesiones); }
+  refrescar();
+});
+$('salida-trazabilidad').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-herr]'); if(!b) return;
+  estado.herr=b.dataset.herr; generar(true); avisar('Herramienta cambiada a '+b.dataset.herr+'.');
+});
+
+$('generar').addEventListener('click',()=>generar());
+const EJEMPLO={area:'Ingeniería de Sistemas · evaluación de modelos de IA',
+  rae:'Auditar un clasificador identificando disparidades de desempeño entre subgrupos y justificar una corrección con criterios éticos.',
+  evidencia:'La matriz de análisis con las métricas desglosadas por subgrupo y un plan de corrección de una página.',
+  nivel:'Pregrado · presencial',duracion:60,restriccion:'conectividad'};
+function ocultarAvisos(){ $('avisoEjemplo').style.display='none'; $('avisoCompartida').style.display='none'; }
+function cargarEjemplo(sinScroll){
+  cargar(EJEMPLO); generar(sinScroll); ocultarAvisos(); $('avisoEjemplo').style.display='flex';
+  $('estado').textContent='Está viendo un ejemplo. Cambie cualquier decisión y la propuesta se recalcula sola.';
+  $('estado').style.color='var(--acento)';
+}
+$('ejemplo').addEventListener('click',()=>cargarEjemplo(false));
+$('ejemploHero').addEventListener('click',()=>cargarEjemplo(false));
+$('limpiar').addEventListener('click',()=>{
+  cargar({}); estado.tocado={nivel:false,restr:false};
+  $('resultado').classList.remove('visible'); ocultarAvisos();
+  history.replaceState(null,'',location.pathname+location.search);
+  $('estado').textContent='Todo queda en su equipo. Nada se envía a internet.'; $('estado').style.color='var(--tenue)';
+  pintarSemaforo(analizar(leer())); $('area').focus();
+});
+document.querySelectorAll('#pestanas button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#pestanas button').forEach(o=>o.classList.toggle('on',o===b));
+  document.querySelectorAll('.pestana-panel').forEach(p=>p.style.display = p.id==='p-'+b.dataset.p ? 'block':'none');
+}));
+
+/* ============================================================
+   7 · COMPARTIR, BANCO Y DESCARGAS
+   ============================================================ */
+const codificar=d=>btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+function decodificar(h){
+  try{ const o=JSON.parse(decodeURIComponent(escape(atob(h.replace(/-/g,'+').replace(/_/g,'/')))));
+    return (o && typeof o==='object' && typeof o.rae==='string') ? o : null; }catch(e){ return null; }
+}
+const enlaceDe=d=>location.href.split('#')[0]+'#a='+codificar(d);
+async function copiarTexto(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(e){ const a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select();
+    let ok=false; try{ ok=document.execCommand('copy'); }catch(_){} a.remove(); return ok; }
+}
+$('compartir').addEventListener('click',async()=>{
+  const u=enlaceDe(leer()); history.replaceState(null,'',u);
+  avisar(await copiarTexto(u) ? 'Enlace copiado. Quien lo abra verá esta actividad lista para ajustar.' : 'El enlace quedó en la barra de direcciones: cópielo desde allí.');
+});
+$('copiar').addEventListener('click',async()=>{
+  const t=[...document.querySelectorAll('#salida-ficha .item')].map(i=>i.querySelector('.k').textContent+': '+i.querySelector('.v').firstChild.textContent+
+    [...i.querySelector('.v').childNodes].slice(1).filter(n=>n.nodeName!=='SMALL').map(n=>n.textContent).join('')).join('\n');
+  avisar(await copiarTexto(t) ? 'Ficha copiada.' : 'No se pudo copiar en este navegador.');
+});
+$('imprimir').addEventListener('click',()=>window.print());
+
+function bajar(nombre,contenido,tipo){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([contenido],{type:tipo})); a.download=nombre;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+const nombreArchivo=d=>tituloDe(d).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50)||'actividad';
+$('bajarHtml').addEventListener('click',()=>{
+  const d=leer(), A=analizar(d), sec=(t,id)=>`<section><h2>${t}</h2>${$(id).innerHTML}</section>`;
+  const css=`*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f7f6f2;color:#101828;line-height:1.55}
+.wrap{width:min(940px,calc(100% - 40px));margin:0 auto}header{padding:44px 0 24px;border-bottom:2px solid #101828}.kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#0b7f7a;font-weight:800}
+h1{font-size:34px;line-height:1.12;letter-spacing:-.025em;margin:12px 0 10px}.datos{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;list-style:none}.datos li{font-size:12px;border:1px solid #d9dde7;background:#fff;padding:6px 11px;border-radius:999px;color:#4a5568}.datos b{color:#101828}
+section{padding:28px 0;border-bottom:1px solid #d9dde7}h2{font-size:20px;margin-bottom:14px}.ficha{display:grid;gap:10px}.item{border-left:3px solid #0b7f7a;padding:10px 12px 10px 14px;background:rgba(11,127,122,.06);border-radius:0 10px 10px 0}
+.k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#0b7f7a;font-weight:800;margin-bottom:4px}.v{font-size:14.5px}.v small{display:block;color:#7b8794;font-size:12.5px;margin-top:4px}
+.linea{display:flex;gap:14px;padding:10px 0;border-bottom:1px dashed #d9dde7}.linea .t{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#0b7f7a;min-width:92px;font-weight:700}.linea .d{font-size:14px;color:#4a5568}.linea .d b{color:#101828}
+.tabla{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border:1px solid #d9dde7;margin:8px 0}th{text-align:left;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:#0b7f7a;padding:7px 8px}
+td{padding:8px;border-bottom:1px solid #eef0f5;vertical-align:top;color:#4a5568}td b{color:#101828}td .d{display:block;font-size:11px;color:#7b8794}td.logro{background:#e3f3f1;box-shadow:inset 0 0 0 1.5px #0b7f7a;color:#101828}
+td.logro::before{content:"✓ Este diseño";display:block;font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#0b7f7a}.resumen-nota{font-size:14px;color:#4a5568;margin-bottom:10px}.resumen-nota strong{font-size:24px;color:#101828}
+.nota{font-size:12px;color:#7b8794}.chip{display:inline-block;font:inherit;font-size:11px;border:1px solid #d9dde7;border-radius:999px;padding:3px 9px;margin:0 4px 4px 0;color:#4a5568;background:#fff}.chip.on{border-color:#0b7f7a;color:#0b7f7a;font-weight:800}
+footer{padding:24px 0 50px;color:#7b8794;font-size:12px}footer a{color:#0b7f7a}@media print{body{background:#fff}section{break-inside:avoid}}`;
+  const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(tituloDe(d))} · actividad con TIC</title><style>${css}</style></head><body><div class="wrap">
+<header><div class="kicker">Actividad generada con el Generador de actividades TIC</div><h1>${esc(tituloDe(d))}</h1>
+<ul class="datos"><li><b>Área:</b> ${esc(d.area||'—')}</li><li><b>Nivel:</b> ${esc(d.nivel)}</li><li><b>Sesión:</b> ${d.duracion} minutos</li><li><b>Restricción:</b> ${NOM_RESTR[d.restriccion]}</li><li><b>Alineación:</b> ${A.completo?coma(A.nota)+' / 5,0 · '+A.etq:'—'}</li></ul></header>
+${sec('1 · Ficha de cinco campos','p-ficha').replace('<h3>Ficha para la pizarra virtual</h3>','')}${sec('2 · Secuencia de la sesión','salida-secuencia')}${sec('3 · Rúbrica del diseño, aplicada','salida-diseno')}${sec('4 · Rúbrica para el estudiante','salida-estudiante')}${sec('5 · Trazabilidad','salida-trazabilidad')}
+<footer>Para ajustar esta actividad, ábrala en el generador: <a href="${esc(enlaceDe(d))}">${esc(enlaceDe(d).slice(0,70))}…</a></footer></div></body></html>`;
+  bajar(nombreArchivo(d)+'.html',html,'text/html'); avisar('Página descargada: se abre sin conexión en cualquier navegador.');
+});
+
+/* banco */
+let memoria=[];
+function leerBanco(){ try{ const b=JSON.parse(localStorage.getItem('tic-banco')||'[]'); return Array.isArray(b)?b:[]; }catch(e){ return memoria; } }
+function escribirBanco(b){ memoria=b; try{ localStorage.setItem('tic-banco',JSON.stringify(b)); }catch(e){} pintarBanco(); }
+function pintarBanco(){
+  const b=leerBanco(); $('cuentaBanco').textContent=b.length;
+  $('listaBanco').innerHTML = b.length ? b.map(x=>{ const A=analizar(x.d);
+    return `<article class="guardada"><h4>${esc(tituloDe(x.d))}</h4><p>${esc(x.d.rae)}</p>
+      <div class="pie"><span class="nt">${A.completo?coma(A.nota)+' · '+A.etq:'incompleta'}</span>
+      <button class="btn" data-b="abrir" data-id="${esc(x.id)}">Abrir</button><button class="btn" data-b="enlace" data-id="${esc(x.id)}">Enlace</button><button class="btn" data-b="borrar" data-id="${esc(x.id)}" aria-label="Eliminar">✕</button></div></article>`; }).join('')
+    : '<div class="vacio" style="grid-column:1/-1">Aún no hay actividades guardadas. Genere una y pulse «Guardar en mi banco».</div>';
+}
+$('guardar').addEventListener('click',()=>{
+  const d=leer(), b=leerBanco(), i=b.findIndex(x=>x.d.rae===d.rae && x.d.area===d.area);
+  const reg={id:i>=0?b[i].id:'a'+Date.now().toString(36), f:new Date().toISOString().slice(0,10), d};
+  if(i>=0) b[i]=reg; else b.unshift(reg);
+  escribirBanco(b); avisar(i>=0?'Actividad actualizada en su banco.':'Guardada en su banco.');
+});
+$('listaBanco').addEventListener('click',async e=>{
+  const t=e.target.closest('button[data-b]'); if(!t) return;
+  const b=leerBanco(), x=b.find(y=>y.id===t.dataset.id); if(!x) return;
+  if(t.dataset.b==='abrir'){ cargar(x.d); ocultarAvisos(); generar(); }
+  else if(t.dataset.b==='enlace'){ avisar(await copiarTexto(enlaceDe(x.d))?'Enlace copiado.':'No se pudo copiar el enlace.'); }
+  else { escribirBanco(b.filter(y=>y!==x)); avisar('Actividad eliminada del banco.'); }
+});
+$('exportar').addEventListener('click',()=>{
+  const b=leerBanco(); if(!b.length){ avisar('El banco está vacío.'); return; }
+  bajar('banco-actividades-tic.json',JSON.stringify({generador:'tic-72P05',actividades:b},null,2),'application/json');
+});
+$('importarBtn').addEventListener('click',()=>$('importar').click());
+$('importar').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const o=JSON.parse(await f.text()), lista=(Array.isArray(o)?o:o.actividades)||[];
+    const b=leerBanco(); let n=0;
+    lista.forEach(x=>{ if(x && x.d && typeof x.d.rae==='string' && !b.some(y=>y.d.rae===x.d.rae && y.d.area===x.d.area)){
+      b.push({id:'a'+Date.now().toString(36)+n, f:String(x.f||''), d:{area:String(x.d.area||''),rae:x.d.rae,evidencia:String(x.d.evidencia||''),
+        nivel:String(x.d.nivel||''),duracion:+x.d.duracion||60,restriccion:String(x.d.restriccion||''),herr:x.d.herr?String(x.d.herr):null}}); n++; } });
+    escribirBanco(b); avisar(n?`Se importaron ${n} actividades.`:'No había actividades nuevas en ese archivo.');
+  }catch(err){ avisar('Ese archivo no es un banco de actividades válido.'); }
+  e.target.value='';
+});
+
+document.addEventListener('change',e=>{
+  if(e.target && e.target.id==='fijarNivel'){ fijarNivelManual(e.target.value || null); }
+});
+
+/* casos de ejemplo y disciplinas */
+const P='Pregrado · presencial';
+const CASOS={
+  antes:{area:'Biología · la célula',rae:'Que los estudiantes conozcan la célula.',evidencia:'Un cuestionario de opción múltiple.',nivel:P,duracion:60,restriccion:'conectividad'},
+  despues:{area:'Biología · la célula',rae:'Explicar la función de cada organelo de una célula a partir de una micrografía.',evidencia:'La micrografía rotulada y un video corto donde justifican cada rótulo.',nivel:P,duracion:60,restriccion:'conectividad'},
+  salud:{g:'Ciencias de la salud',area:'Enfermería · administración segura de medicamentos',rae:'Calcular la dosis pediátrica de un medicamento a partir del peso del paciente y verificar el resultado con los cinco correctos.',evidencia:'El ejercicio resuelto de tres casos clínicos nuevos, con el registro del procedimiento paso a paso.',nivel:P,duracion:60,restriccion:'conectividad'},
+  ing:{g:'Ingeniería y tecnología',...EJEMPLO},
+  derecho:{g:'Derecho y ciencias sociales',area:'Derecho · responsabilidad civil extracontractual',rae:'Argumentar la existencia de responsabilidad civil en un caso real a partir del daño, la culpa y el nexo causal.',evidencia:'Un escrito de dos páginas con la sustentación de cada elemento y la respuesta a una objeción.',nivel:P,duracion:90,restriccion:'conectividad'},
+  educ:{g:'Educación y humanidades',area:'Licenciatura en Educación Infantil · planeación de aula',rae:'Diseñar una secuencia didáctica de tres sesiones para el lenguaje oral en niños de cinco años.',evidencia:'El diseño de la secuencia en su segunda versión, con la justificación de los cambios tras la revisión de una colega.',nivel:P,duracion:120,restriccion:'conectividad'},
+  econ:{g:'Ciencias económicas y administrativas',area:'Contaduría · análisis financiero',rae:'Comparar la liquidez y el endeudamiento de dos empresas del mismo sector a partir de sus estados financieros.',evidencia:'Un cuadro comparativo de indicadores y un informe de una página que sustente cuál empresa es más sólida.',nivel:P,duracion:90,restriccion:'conectividad'},
+  artes:{g:'Artes, diseño y comunicación',area:'Comunicación Social · narrativa sonora',rae:'Producir un pódcast de tres minutos que cuente una historia local con inicio, conflicto y cierre.',evidencia:'El pódcast terminado, con el guion y una bitácora de las decisiones de edición.',nivel:P,duracion:120,restriccion:'sinconexion'},
+  basicas:{g:'Ciencias básicas',area:'Física · circuitos eléctricos',rae:'Resolver circuitos en serie y en paralelo con la ley de Ohm para predecir la corriente en cada rama.',evidencia:'El taller resuelto con tres circuitos nuevos, el registro del procedimiento y la comprobación en el simulador.',nivel:P,duracion:60,restriccion:'conectividad'}
+};
+$('listaDisc').innerHTML=Object.entries(CASOS).filter(([,c])=>c.g).map(([k,c])=>{ const A=analizar(c);
+  return `<article class="guardada"><div class="area">${esc(c.g)}</div><h4>${esc(c.area)}</h4><p>${esc(c.rae)}</p>
+    <div class="pie"><span class="nt" style="flex-basis:100%">${coma(A.nota)} · ${esc(A.H.herr.n)}</span><button class="btn" data-caso="${k}">Probar</button></div></article>`; }).join('');
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-caso]'); if(!b) return;
+  cargar(CASOS[b.dataset.caso]); ocultarAvisos(); generar(true);
+  $('hacer').scrollIntoView({behavior:'smooth'});
+  avisar('Ejemplo cargado. Cambie cualquier decisión para adaptarlo a su curso.');
+});
+
+/* tabla de verbos */
+$('bloom').innerHTML=NIVELES.map(n=>`<div><b>${NOMBRE[n]}</b><span>${{recordar:'identificar, reconocer, definir, enumerar',comprender:'explicar, interpretar, clasificar, describir',
+  aplicar:'resolver, calcular, implementar, demostrar',analizar:'comparar, contrastar, auditar, diagnosticar',evaluar:'argumentar, justificar, valorar, recomendar',
+  crear:'diseñar, construir, formular, proponer'}[n]}</span></div>`).join('')+
+  '<div class="no"><b>No observables</b><span>conocer, comprender, entender, saber, aprender, apreciar</span></div>';
+
+/* ============================================================
+   8 · ARRANQUE
+   ============================================================ */
+function desdeEnlace(){
+  const m=location.hash.match(/^#a=(.+)$/); if(!m) return false;
+  const d=decodificar(m[1]); if(!d) return false;
+  cargar(d); generar(true); ocultarAvisos(); $('avisoCompartida').style.display='flex';
+  return true;
+}
+pintarBanco();
+if(!desdeEnlace()) cargarEjemplo(true);
+addEventListener('hashchange',()=>{ if(desdeEnlace()) $('resultado').scrollIntoView({behavior:'smooth'}); });
+</script>
+</body>
+</html>
