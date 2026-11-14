@@ -39,3 +39,12 @@ Heyler Fabio Guaza Lesmes · Especialización en Docencia Universitaria.
 - Pruebas de regresion en `tests/` (`node tests/correr.mjs`); las 9 notas de la v1 se conservan.
 
 Vista previa: https://fabig76.github.io/generador-tic/v2/
+
+### Segunda tanda de la v2
+
+- **Tres dominios**: cognitivo, psicomotor y afectivo, con verbos, evidencias y rubricas propias.
+- **Tipo de aprendizaje** (adquisicion, indagacion, practica, produccion, discusion, colaboracion) visible en la trazabilidad.
+- **Quinto criterio** de accesibilidad con dos chips para declarar formatos y formas de entrega.
+- **Instalable** en el celular (manifest + service worker solo por https).
+
+Pruebas: `node tests/pruebas.mjs` (20 comprobaciones) y `node tests/correr.mjs` (linea base de los 9 casos).

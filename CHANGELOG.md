@@ -33,3 +33,27 @@ M5 · Tiempo flexible
 - Duraciones de 30, 45, 55, 60, 90 y 120 minutos, mas un campo libre de 20 a 240.
 - `sesiones` (1 a 3) y reparto proporcional del tiempo cuando la duracion no es una de las tres clasicas.
 - La viabilidad cuenta el total de sesiones y ofrece «Dividir en 2 sesiones».
+
+## v2 · segunda tanda
+
+M2 · Tres dominios de aprendizaje
+- Escalas propias para psicomotor (percibir → naturalizar) y afectivo (recibir → caracterizar).
+- Verbos, evidencias, rubrica del estudiante y minutos minimos por dominio.
+- Deteccion por senales del contexto, con selector para corregir el dominio a mano.
+- Grupos de herramienta nuevos: `practicar` y `reflexionar`.
+
+M3 · Tipo de aprendizaje (Laurillard / ABC Learning Design)
+- Cada actividad declara su forma: adquisicion, indagacion, practica, produccion, discusion o colaboracion.
+- Si el resultado solo pide ver, leer o escuchar, el criterio 2 lo marca y ofrece convertirlo en produccion.
+- La trazabilidad muestra el tipo y la regla que lo produjo.
+
+M6 · Accesibilidad (DUA)
+- Quinto criterio del semaforo con cinco senales; dos chips nuevos en el formulario.
+- La nota pasa a ser el promedio de cinco criterios. El descenso es intencional y esta documentado.
+
+M8 · PWA
+- `manifest.json`, `sw.js` e iconos. Se registran solo por https; desde `file://` no se intenta nada.
+- Sin asistente de IA: contradice el argumento de que el semaforo es determinista y auditable.
+
+Pruebas
+- `tests/pruebas.mjs`: 20 comprobaciones (carga, enlaces de la v1, controles, dominios, correccion manual, DUA, banco, impresion). Verdes en local y en la vista publicada.
