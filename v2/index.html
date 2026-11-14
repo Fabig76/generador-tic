@@ -457,7 +457,16 @@
             </div>
 
             <div class="campo">
-              <div class="et"><span>5</span><label>Restricciones reales del aula</label></div>
+              <div class="et"><span>5</span><label>Accesibilidad (opcional, suma en el semáforo)</label></div>
+              <div class="opciones" id="dua">
+                <button class="opcion" data-v="formatos">El material viene en más de un formato</button>
+                <button class="opcion" data-v="eleccion">La evidencia admite dos formas de entrega</button>
+              </div>
+              <div class="ayuda">Texto con audio, imagen con descripción, o entregar escrito o grabado: son caminos distintos para el mismo aprendizaje.</div>
+            </div>
+
+            <div class="campo">
+              <div class="et"><span>6</span><label>Restricciones reales del aula</label></div>
               <div class="opciones" id="restriccion">
                 <button class="opcion on" data-v="conectividad">Conectividad estable</button>
                 <button class="opcion" data-v="sinconexion">Conectividad inestable</button>
@@ -783,6 +792,15 @@ const HERRAMIENTAS={
              {n:'Documento compartido',t:'texto con historial de versiones y comentarios',nube:true},
              {n:'Notas adhesivas en el tablero',t:'aportes visibles que se agrupan y discuten',nube:false,amb:'aula'},
              {n:'Notas de voz en diferido',t:'aportes grabados que se envían cuando hay señal',nube:false,amb:'casa'}],
+  practicar:[{n:'Video con el celular a cámara lenta',t:'ejecución revisada cuadro por cuadro',nube:false,amb:'aula'},
+             {n:'Lista de chequeo observacional impresa',t:'criterios marcados por un par mientras se ejecuta',nube:false,amb:'aula'},
+             {n:'Cronómetro y registro de tiempos',t:'marcas de tiempo y errores por intento',nube:false,amb:'aula'},
+             {n:'Simulador o maniquí',t:'escenario controlado con retroalimentación inmediata',nube:false,amb:'aula'},
+             {n:'Metrónomo o app de ritmo',t:'referencia sonora para sostener el tempo',nube:true}],
+  reflexionar:[{n:'Diario reflexivo',t:'registro fechado de decisiones y razones',nube:false,amb:'ambos'},
+               {n:'Muro de acuerdos del grupo',t:'compromisos visibles y firmados',nube:false,amb:'aula'},
+               {n:'Círculo de palabra con acta',t:'turnos de voz registrados por escrito',nube:false,amb:'aula'},
+               {n:'Encuesta anónima de clima',t:'percepción del grupo sin exponer a nadie',nube:true}],
   explicar:[{n:'Video corto compartido (Loom o Stream)',t:'explicación grabada que el grupo comenta',nube:true},
             {n:'Edpuzzle',t:'video del estudiante con preguntas para sus compañeros',nube:true},
             {n:'Grabación con el celular',t:'video o audio corto hecho sin conexión',nube:false,amb:'ambos'}]
@@ -807,6 +825,97 @@ const ACTIVIDAD={
 };
 
 const ESCALA=['Excelente 5.0','Sobresaliente 4.6–4.9','Bueno 4.0–4.5','Aceptable 3.0–3.9','No aceptable 1.0–2.9'];
+
+/* ---------- M2 · tres dominios de aprendizaje ---------- */
+const DOMINIOS={
+  cognitivo:['recordar','comprender','aplicar','analizar','evaluar','crear'],
+  psicomotor:['percibir','imitar','manipular','precisar','articular','naturalizar'],
+  afectivo:['recibir','responder','valorar','organizar','caracterizar']
+};
+const NOMBRE_DOM={percibir:'Percibir',imitar:'Imitar',manipular:'Manipular',precisar:'Precisar',
+  articular:'Articular',naturalizar:'Naturalizar',recibir:'Recibir',responder:'Responder',
+  valorar:'Valorar',organizar:'Organizar',caracterizar:'Caracterizar'};
+const VERBOS_DOM={
+  psicomotor:{
+    percibir:['observ','detect','distingu','identific'],
+    imitar:['imit','reproduc','repet','copi'],
+    manipular:['manipul','ejecut','realiz','practic','maniobr','prepar','aplic','us'],
+    precisar:['afin','ajust','calibr','control','dosific','pul','correg'],
+    articular:['coordin','combin','integr','improvis','adapt','encaden'],
+    naturalizar:['domin','automatiz','interpret','desempeñ']},
+  afectivo:{
+    recibir:['escuch','atend','reconoc','acept'],
+    responder:['particip','respond','colabor','cumpl','asist','apoy'],
+    valorar:['valor','defend','compromet','respet','argument','apreci'],
+    organizar:['prioriz','concil','integr','medi','negoci','resuelv conflic'],
+    caracterizar:['lider','model','sostien','sosteng','promuev','impuls']}
+};
+const RE_DOM={};
+Object.entries(VERBOS_DOM).forEach(([dom,mapa])=>{
+  RE_DOM[dom]={}; Object.entries(mapa).forEach(([nv,raices])=>{ RE_DOM[dom][nv]=reVerbo(raices); });
+});
+/* señales del contexto para decidir el dominio cuando el docente no lo fija */
+const PISTAS_DOMINIO=[
+  ['psicomotor',/maniqu[ií]|rcp|reanimaci[oó]n|instrumento|partitura|guitarra|piano|movimiento|t[eé]cnica quir[uú]rgica|sutura|receta|degustaci[oó]n|deporte|ejercicio f[ií]sico|coreograf|dibuj|pintur|soldadur|maquinaria|torno|conducci[oó]n|nataci[oó]n|bal[oó]n|tiro|salto|postura/iu],
+  ['afectivo',/actitud|valor(es)?|convivencia|respeto|empat[ií]a|[eé]tica|compromiso social|inclusi[oó]n|diversidad|clima escolar|trabajo en equipo|solidaridad|responsabilidad social/iu]
+];
+const EVID_DOM={
+  psicomotor:{
+    percibir:/observaci[oó]n|video|registro de se[ñn]ales|lista de chequeo/iu,
+    imitar:/video|demostraci[oó]n|ejecuci[oó]n guiada|lista de chequeo/iu,
+    manipular:/lista de chequeo|registro de pasos|video de la ejecuci[oó]n|bit[aá]cora de pr[aá]ctica/iu,
+    precisar:/registro de tiempos|errores|video|instrumento de evaluaci[oó]n cl[ií]nica|osce|r[uú]brica de desempe[ñn]o/iu,
+    articular:/video|secuencia completa|pieza|presentaci[oó]n|muestra|registro de ensayo/iu,
+    naturalizar:/video|pieza interpretada|muestra p[uú]blica|registro de desempe[ñn]o sostenido/iu},
+  afectivo:{
+    recibir:/registro de asistencia|bit[aá]cora de escucha|nota de clase/iu,
+    responder:/registro de participaci[oó]n|lista de chequeo|bit[aá]cora de aportes/iu,
+    valorar:/diario reflexivo|autoevaluaci[oó]n|registro de decisiones|ensayo|argumentaci[oó]n/iu,
+    organizar:/acuerdo de grupo|acta|plan de convivencia|portafolio de decisiones/iu,
+    caracterizar:/portafolio|registro de conducta sostenida|evidencia de liderazgo|testimonio de terceros/iu}
+};
+const MINUTOS_DOM={cognitivo:[60,60,60,90,90,120],psicomotor:[30,45,60,90,90,120],afectivo:[30,45,60,90,90,120]};
+const RUBRICA_DOM={
+  psicomotor:[
+    ['Precisión técnica','Ejecuta con exactitud y sin errores de forma.','Ejecuta con uno o dos errores menores.','Ejecuta con errores que no afectan el resultado.','Ejecuta con errores que comprometen el resultado.'],
+    ['Seguridad','Cumple todas las normas y advierte riesgos.','Cumple las normas con recordatorios.','Cumple solo las normas básicas.','Pone en riesgo el procedimiento.'],
+    ['Fluidez y ritmo','Sostiene el ritmo y encadena los pasos sin pausas.','Sostiene el ritmo con alguna pausa.','Ritmo irregular.','Se detiene a cada paso.'],
+    ['Autocorrección','Detecta el error y lo corrige en el momento.','Corrige con una señal externa.','Corrige solo al final.','No corrige.']],
+  afectivo:[
+    ['Consistencia de la conducta','Sostiene la conducta en varias sesiones y contextos.','La sostiene en la mayoría.','Aparece de forma intermitente.','Solo cuando se le observa.'],
+    ['Argumentación del valor','Explica por qué actúa así y reconoce el efecto en otros.','Explica el porqué sin analizar el efecto.','Repite el argumento del docente.','No ofrece razones.'],
+    ['Impacto en el grupo','Su conducta cambia algo verificable del grupo.','Aporta al grupo de forma puntual.','Participa sin generar cambio.','Su conducta resta al grupo.'],
+    ['Reflexión propia','Reconoce límites propios y propone cómo superarlos.','Reconoce límites con ayuda.','Reconoce el límite sin proponer nada.','No reflexiona sobre su actuación.']]
+};
+const NOMBRE_TODOS=Object.assign({},NOMBRE,NOMBRE_DOM);
+
+function dominioDe(d){
+  if(d.fijado && d.fijado.dominio) return d.fijado.dominio;
+  const ctx=(d.area||'')+' '+(d.rae||'')+' '+(d.evidencia||'');
+  for(const [dom,re] of PISTAS_DOMINIO) if(re.test(ctx)) return dom;
+  return 'cognitivo';
+}
+function buscarVerboDom(txt,dom){
+  if(dom==='cognitivo') return buscarVerbo(txt);
+  let mejor=null;
+  DOMINIOS[dom].forEach(nv=>{ const re=RE_DOM[dom][nv]; if(!re) return;
+    re.lastIndex=0; const m=re.exec(txt);
+    if(m){ const idx=m.index+m[1].length; if(!mejor||idx<mejor.idx) mejor={idx,palabra:m[2],nivel:nv,dominio:dom}; }
+  });
+  return mejor;
+}
+function nivelEvidenciaDom(txt,dom){
+  if(dom==='cognitivo') return nivelEvidencia(txt);
+  txt=txt.replace(RE_TEMA,'');
+  const esc=DOMINIOS[dom], hallados=[];
+  esc.forEach(nv=>{ const re=EVID_DOM[dom][nv]; if(re){ const m=re.exec(txt); if(m) hallados.push({nivel:nv,palabra:m[0].toLowerCase()}); } });
+  if(!hallados.length) return null;
+  const r=hallados[hallados.length-1];
+  if(hallados.length>1) r.todas=hallados.map(x=>x.nivel);
+  return r;
+}
+function posicion(dom,nv){ const arr=DOMINIOS[dom]; const i=arr.indexOf(nv); return i<0?0:i/(arr.length-1)*5; }
+
 const PUNTOS=[5.0,4.7,4.2,3.4,2.0];
 const RUBRICA_DISENO=[
   { c:'Pertinencia del resultado', d:'El resultado es observable y la evidencia lo demuestra.',
@@ -832,7 +941,13 @@ const RUBRICA_DISENO=[
        'Cabe en el tiempo con ajustes menores.',
        'Cabe con esfuerzo; queda poco margen para el cierre.',
        'Requiere más tiempo o recursos de los declarados.',
-       'No es ejecutable con las condiciones declaradas.'] }
+       'No es ejecutable con las condiciones declaradas.'] },
+  { c:'Accesibilidad y opciones', d:'Hay más de un camino para acceder y para demostrar el aprendizaje.',
+    n:['Cinco señales: varios formatos, dos formas de entregar, borrador previo, criterios compartidos y herramienta sin dependencia de la nube.',
+       'Cuatro de las cinco señales.',
+       'Tres señales: el diseño funciona, pero deja un solo camino en algún punto.',
+       'Dos señales: hay estudiantes que solo podrían demostrar el aprendizaje de una manera.',
+       'Menos de dos señales: el diseño depende de una única forma de acceder y de entregar.'] }
 ];
 
 const ESCALA_EST=['Excelente 4.6–5.0','Bueno 4.0–4.5','Aceptable 3.0–3.9','No aceptable 1.0–2.9'];
@@ -877,12 +992,12 @@ const ETAPAS={preescolar:['Preescolar',30],primaria:['Básica primaria',45],secu
   media:['Media',55],tecnica:['Técnica y tecnológica',120],pregrado:['Pregrado',60],posgrado:['Posgrado',90],
   continua:['Educación continua',60]};
 const MODALIDADES={presencial:'presencial',virtual:'virtual','hibrida':'híbrida','remota-baja':'remota con conexión intermitente'};
-const estado={ etapa:'pregrado', modalidad:'presencial', duracion:60, sesiones:1, restriccion:'conectividad',
+const estado={ etapa:'pregrado', modalidad:'presencial', duracion:60, sesiones:1, dua:{formatos:false,eleccion:false}, restriccion:'conectividad',
   herr:null, fijado:null, tocado:{etapa:false,restr:false,duracion:false} };
 const nivelTexto=()=>ETAPAS[estado.etapa][0]+' · '+MODALIDADES[estado.modalidad];
 const leer=()=>({ area:$('area').value.trim(), rae:$('rae').value.trim(), evidencia:$('evidencia').value.trim(),
   nivel:nivelTexto(), etapa:estado.etapa, modalidad:estado.modalidad,
-  duracion:estado.duracion, sesiones:estado.sesiones, restriccion:estado.restriccion, herr:estado.herr,
+  duracion:estado.duracion, sesiones:estado.sesiones, dua:estado.dua, restriccion:estado.restriccion, herr:estado.herr,
   fijado:estado.fijado });
 
 function buscarVerbo(txt){
@@ -907,7 +1022,10 @@ function nivelEvidencia(txt){
 }
 function elegirHerramienta(d,nv,gap){
   const r=d.rae.toLowerCase();
-  let grupo={recordar:'comprobar',comprender:'crear',aplicar:'simular',analizar:'colaborar',evaluar:'colaborar',crear:'crear'}[nv];
+  let grupo={recordar:'comprobar',comprender:'crear',aplicar:'simular',analizar:'colaborar',evaluar:'colaborar',crear:'crear',
+    percibir:'practicar',imitar:'practicar',manipular:'practicar',precisar:'practicar',articular:'practicar',naturalizar:'practicar',
+    recibir:'reflexionar',responder:'reflexionar',valorar:'reflexionar',organizar:'reflexionar',caracterizar:'reflexionar'}[nv] || 'crear';
+  if(!HERRAMIENTAS[grupo]) grupo='crear';
   if(nv==='comprender' && /explic|comunic|expres|expon/.test(r)) grupo='explicar';
   if(['aplicar','analizar','evaluar'].includes(nv) && /audit|m[eé]tric|desagreg|dataset|datos|modelo|clasificador|algoritmo|estad[ií]stic|c[aá]lcul|program|financier|indicador|presupuest|contab/.test(r)) grupo='simular';
   const virtual=/virtual/.test(d.nivel), sinNube=d.restriccion!=='conectividad';
@@ -925,15 +1043,16 @@ function elegirHerramienta(d,nv,gap){
 }
 
 function analizar(d){
-  const v=d.rae.length>=8 ? buscarVerbo(d.rae) : null;
+  const dom=dominioDe(d);
+  const v=d.rae.length>=8 ? buscarVerboDom(d.rae,dom) : null;
   const observable=v && v.nivel!=='no';
   const fijado=(d.fijado&&d.fijado.nivel)||null;
-  const nv=fijado || (observable ? v.nivel : 'aplicar');
-  const iV=NIVELES.indexOf(nv);
-  let ev=d.evidencia.length>=12 ? nivelEvidencia(d.evidencia) : null;
+  const nv=fijado || (observable ? v.nivel : DOMINIOS[dom][2]);
+  const iV=DOMINIOS[dom].indexOf(nv);
+  let ev=d.evidencia.length>=12 ? nivelEvidenciaDom(d.evidencia,dom) : null;
   if(d.fijado&&d.fijado.nivelEvidencia&&ev) ev=Object.assign({},ev,{nivel:d.fijado.nivelEvidencia,fijado:true});
   if(d.fijado&&d.fijado.nivelEvidencia&&!ev) ev={nivel:d.fijado.nivelEvidencia,palabra:'(fijada por usted)',fijado:true};
-  const iE=ev ? NIVELES.indexOf(ev.nivel) : -1;
+  const iE=ev ? DOMINIOS[dom].indexOf(ev.nivel) : -1;
   const proceso=RE_PROCESO.test(d.evidencia);
   const H=elegirHerramienta(d,nv);
   const crit=[];
@@ -948,22 +1067,22 @@ function analizar(d){
   else if(!v) crit.push({col:3,msg:'No encuentro un verbo observable. Empiece la frase con uno:',acc:SUGERIDOS.map(s=>({t:s,a:'iniciar',v:s}))});
   else if(d.evidencia.length<12) crit.push({col:2,msg:`«${verbo}» es observable (nivel ${nv}). Falta declarar la evidencia.`,acc:[]});
   else if(!ev) crit.push({col:2,msg:`«${verbo}» es observable (nivel ${nv}), pero no reconozco el entregable. Nómbrelo: matriz, informe, prototipo, video…`,
-    acc:[{t:'Usar una evidencia sugerida',a:'evid',v:SUG_EVID[nv]}]});
+    acc:[{t:'Usar una evidencia sugerida',a:'evid',v:(SUG_EVID[nv]||SUG_EVID.aplicar)}]});
   else if(iE>=iV) crit.push({col:0,msg:`«${verbo}» es observable (nivel ${nv}) y «${ev.palabra}» lo demuestra.`,acc:[]});
-  else if(iE===iV-1) crit.push({col:1,msg:`«${verbo}» pide ${nv}; «${ev.palabra}» llega hasta ${ev.nivel}. Está cerca.`,acc:[{t:'Ver evidencia sugerida',a:'evid',v:SUG_EVID[nv]}]});
+  else if(iE===iV-1) crit.push({col:1,msg:`«${verbo}» pide ${nv}; «${ev.palabra}» llega hasta ${ev.nivel}. Está cerca.`,acc:[{t:'Ver evidencia sugerida',a:'evid',v:(SUG_EVID[nv]||SUG_EVID.aplicar)}]});
   else crit.push({col:3,msg:`El verbo pide ${nv}, pero «${ev.palabra}» solo demuestra ${ev.nivel}. La evidencia se queda corta.`,
-    acc:[{t:'Usar: '+SUG_EVID[nv].toLowerCase().replace(/\.$/,''),a:'evid',v:SUG_EVID[nv]}]});
+    acc:[{t:'Usar: '+(SUG_EVID[nv]||SUG_EVID.aplicar).toLowerCase().replace(/\.$/,''),a:'evid',v:(SUG_EVID[nv]||SUG_EVID.aplicar)}]});
 
   /* 2 · coherencia */
   if(!observable) crit.push(pend('Se calcula cuando el resultado tenga un verbo observable.'));
   else if(!H.encaja) crit.push({col:3,msg:`Sin conexión y en modalidad virtual quedan pocas opciones: ${H.herr.n} es lo más cercano. Revise la modalidad o la restricción.`,acc:[]});
-  else if(d.restriccion!=='conectividad') crit.push({col:1,msg:`Se descartaron ${H.descartadas.length} herramientas que no caben en su aula. ${H.herr.n} funciona sin conexión y deja ver ${DEJA_VER[nv]}.`,acc:[]});
-  else crit.push({col:0,msg:`${H.herr.n} deja ver ${DEJA_VER[nv]}.`+(H.elegidaPorDocente?' Elegida por usted entre las alternativas.':''),acc:[]});
+  else if(d.restriccion!=='conectividad') crit.push({col:1,msg:`Se descartaron ${H.descartadas.length} herramientas que no caben en su aula. ${H.herr.n} funciona sin conexión y deja ver ${(DEJA_VER[nv]||DEJA_VER.aplicar)}.`,acc:[]});
+  else crit.push({col:0,msg:`${H.herr.n} deja ver ${(DEJA_VER[nv]||DEJA_VER.aplicar)}.`+(H.elegidaPorDocente?' Elegida por usted entre las alternativas.':''),acc:[]});
 
   /* 3 · calidad de la evidencia */
   const masProceso={t:'Pedir también la justificación',a:'proceso'};
   if(d.evidencia.length<12) crit.push(pend('Declare la evidencia para valorarla.'));
-  else if(!ev) crit.push({col:proceso?2:4,msg:'No hay un entregable reconocible. ¿Qué archivo, objeto o presentación recibiría usted?',acc:[{t:'Usar una evidencia sugerida',a:'evid',v:SUG_EVID[nv]}]});
+  else if(!ev) crit.push({col:proceso?2:4,msg:'No hay un entregable reconocible. ¿Qué archivo, objeto o presentación recibiría usted?',acc:[{t:'Usar una evidencia sugerida',a:'evid',v:(SUG_EVID[nv]||SUG_EVID.aplicar)}]});
   else if(iE===0) crit.push({col:proceso?2:3,msg:proceso?'Un cuestionario con explicación deja ver algo del razonamiento.':'Un cuestionario se puede responder sin comprender. Pida que expliquen al menos un error.',acc:proceso?[]:[masProceso]});
   else if(iE>=3) crit.push(proceso?{col:0,msg:'Obliga a mostrar el proceso y a justificar decisiones: no se resuelve copiando.',acc:[]}
     :{col:1,msg:'Producto de alto nivel. Si además pide la justificación de las decisiones, el proceso queda visible.',acc:[masProceso]});
@@ -975,27 +1094,50 @@ function analizar(d){
     crit.push({col:4,msg:'Modalidad virtual y «sin equipos por estudiante» se contradicen. Revise una de las dos decisiones.',acc:[]});
   else if(!observable) crit.push(pend('Se calcula cuando el resultado tenga un verbo observable.'));
   else{
-    const pide=[60,60,60,90,90,120][iV];
+    const pide=(MINUTOS_DOM[dom]||MINUTOS_DOM.cognitivo)[iV]||60;
     const ses=(+d.sesiones||1), total=d.duracion*ses;
     const dif=total-pide;
     const etiqueta=ses>1?`${ses} sesiones de ${d.duracion} min`:`${d.duracion} minutos`;
     const accSes=ses<3?[{t:'Dividir en 2 sesiones',a:'ses',v:2}]:[];
-    if(dif>=30 || (dif===0 && iV<=2)) crit.push({col:0,msg:`${NOMBRE[nv]} cabe con holgura en ${etiqueta} y deja margen para retroalimentar.`,acc:[]});
-    else if(dif===0) crit.push({col:1,msg:`${NOMBRE[nv]} cabe en ${etiqueta} si el inicio es breve.`,acc:[]});
-    else if(dif===-30) crit.push({col:2,msg:`${NOMBRE[nv]} en ${etiqueta} cabe con esfuerzo y deja poco cierre.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
-    else crit.push({col:3,msg:`${NOMBRE[nv]} necesita más de ${etiqueta}. Amplíe la sesión o divídala.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
+    if(dif>=30 || (dif===0 && iV<=2)) crit.push({col:0,msg:`${(NOMBRE_TODOS[nv]||nv)} cabe con holgura en ${etiqueta} y deja margen para retroalimentar.`,acc:[]});
+    else if(dif===0) crit.push({col:1,msg:`${(NOMBRE_TODOS[nv]||nv)} cabe en ${etiqueta} si el inicio es breve.`,acc:[]});
+    else if(dif===-30) crit.push({col:2,msg:`${(NOMBRE_TODOS[nv]||nv)} en ${etiqueta} cabe con esfuerzo y deja poco cierre.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
+    else crit.push({col:3,msg:`${(NOMBRE_TODOS[nv]||nv)} necesita más de ${etiqueta}. Amplíe la sesión o divídala.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
+  }
+
+  /* 5 · accesibilidad y opciones (pautas DUA) */
+  if(observable){
+    const sen=[
+      !!(d.dua&&d.dua.formatos),
+      !!(d.dua&&d.dua.eleccion) || /\bo\s+(video|audio|grabaci[oó]n|escrito|presentaci[oó]n)/i.test(d.evidencia),
+      /borrador|revisi[oó]n de pares|coevaluaci[oó]n/i.test(d.evidencia),
+      true,                                  /* la rúbrica del estudiante se entrega con la actividad */
+      true                                   /* la herramienta propuesta ya cabe en las restricciones del aula */
+    ];
+    const n=sen.filter(Boolean).length;
+    const col=n>=5?0:n===4?1:n===3?2:n===2?3:4;
+    const faltan=[['material en más de un formato',sen[0]],['dos formas de entregar',sen[1]],['una ronda de borrador',sen[2]],['criterios antes de entregar',sen[3]],['una herramienta que funcione sin conexión',sen[4]]]
+      .filter(x=>!x[1]).map(x=>x[0]);
+    const acc=[];
+    if(!sen[0]) acc.push({t:'Material en más de un formato',a:'dua',v:'formatos'});
+    if(!sen[1]) acc.push({t:'Permitir entrega en video o audio',a:'dua',v:'eleccion'});
+    crit.push({col, msg: n>=5
+      ? 'El diseño ofrece cinco caminos: varios formatos, dos formas de entregar, borrador, criterios previos y herramienta que no depende de la nube.'
+      : `Faltan señales de diseño universal: ${faltan.slice(0,2).join(' y ')}.`, acc});
+  }else{
+    crit.push({col:-1,msg:'Se calcula cuando el resultado tenga un verbo observable.',acc:[]});
   }
 
   crit.forEach((k,i)=>{ k.c=RUBRICA_DISENO[i].c; if(k.col>=0){ k.pt=PUNTOS[k.col]; k.estado=k.col<=1?'ok':k.col===2?'medio':'mal'; } });
   const val=crit.filter(k=>k.col>=0);
-  const completo=val.length===4;
+  const completo=val.length===5;
   let nota=val.length ? Math.round(val.reduce((a,k)=>a+k.pt,0)/val.length*10)/10 : null;
   /* si la evidencia no demuestra el resultado, lo demás no lo compensa */
   const peor=Math.max(crit[0].col,crit[2].col), techo=peor===4?2.9:3.9;
   const topado=nota!==null && peor>=3 && nota>techo;
   if(topado) nota=techo;
   const etq=nota===null?'':nota>=4.95?'Excelente':nota>=4.6?'Sobresaliente':nota>=4.0?'Bueno':nota>=3.0?'Aceptable':'No aceptable';
-  return {v,verbo,observable,nv,ev,H,crit,completo,nota,etq,topado};
+  return {v,verbo,observable,nv,dom,ev,H,crit,completo,nota,etq,topado,fijado:fijadoActivo};
 }
 const coma=n=>n.toFixed(1).replace('.',',');
 
@@ -1017,10 +1159,15 @@ function pintarSemaforo(A){
   }
   $('verboChip').innerHTML = A.v
     ? `<span class="verbo-chip"><i class="luz ${A.observable?'ok':'mal'}" style="margin:0"></i>Verbo detectado: <b>${esc(A.verbo)}</b> · ${A.observable?'nivel '+A.nv:'no observable'}
-        <label class="nota" style="margin-left:10px">¿No es así?
+        <label class="nota" style="margin-left:10px">dominio
+          <select id="fijarDominio" aria-label="Corregir el dominio" style="font:inherit;font-size:11.5px;padding:2px 6px;border-radius:6px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto)">
+            ${Object.keys(DOMINIOS).map(dm=>`<option value="${dm}" ${A.dom===dm?'selected':''}>${dm}</option>`).join('')}
+          </select>
+        </label>
+        <label class="nota" style="margin-left:8px">¿No es así?
           <select id="fijarNivel" aria-label="Corregir el nivel del verbo" style="font:inherit;font-size:11.5px;padding:2px 6px;border-radius:6px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto)">
             <option value="">detectado</option>
-            ${NIVELES.map(n=>`<option value="${n}" ${(estado.fijado&&estado.fijado.nivel===n)?'selected':''}>${n}</option>`).join('')}
+            ${DOMINIOS[A.dom].map(n=>`<option value="${n}" ${(estado.fijado&&estado.fijado.nivel===n)?'selected':''}>${n}</option>`).join('')}
           </select>
         </label></span>` : '';
   const d=leer(), p=[d.area.length>3, d.rae.length>=12, d.evidencia.length>=12, estado.tocado.nivel, estado.tocado.restr];
@@ -1063,9 +1210,9 @@ function generar(sinScroll){
   /* ficha */
   const ficha=[
     {k:'1 · ¿Qué queremos que aprendan?', v:esc(d.rae), s:A.observable?`Verbo «${esc(A.verbo)}», nivel ${nv} de la taxonomía de Bloom revisada.`:'Revise el verbo: el semáforo indica que no es observable.'},
-    {k:'2 · Actividad propuesta', v:`En ${grupos}, ${modo}, los estudiantes ${ACTIVIDAD[nv](esc(herr.n))}.`, s:bloques.map(b=>`${b.t} ${b.m} min`).join(' · ')},
+    {k:'2 · Actividad propuesta', v:`En ${grupos}, ${modo}, los estudiantes ${(ACTIVIDAD[nv]||ACTIVIDAD.aplicar)(esc(herr.n))}.`, s:bloques.map(b=>`${b.t} ${b.m} min`).join(' · ')},
     {k:'3 · Herramienta digital', v:`<b>${esc(herr.n)}</b> — ${esc(herr.t)}.`, s:herr.nube?'Requiere conexión.':'Funciona sin conexión.'},
-    {k:'4 · ¿Por qué esa herramienta ayuda al objetivo?', v:`Porque deja ver ${DEJA_VER[nv]}, que es lo que pide el verbo «${esc(A.verbo.toLowerCase()||nv)}». Con ella se obtiene la evidencia declarada: ${esc(minus(d.evidencia))}.`,
+    {k:'4 · ¿Por qué esa herramienta ayuda al objetivo?', v:`Porque deja ver ${(DEJA_VER[nv]||DEJA_VER.aplicar)}, que es lo que pide el verbo «${esc(A.verbo.toLowerCase()||nv)}». Con ella se obtiene la evidencia declarada: ${esc(minus(d.evidencia))}.`,
       s:H.descartadas.length?`Se descartaron: ${H.descartadas.map(x=>esc(x.n)+' ('+x.por+')').join(', ')}.`:''},
     {k:'5 · ¿Qué evidencia podría demostrar que aprendieron?', v:esc(d.evidencia), s:'Se valora con la «Rúbrica para el estudiante».'}
   ];
@@ -1074,7 +1221,7 @@ function generar(sinScroll){
   /* secuencia */
   const detalle={
     Inicio:`Se presenta el reto y se muestra la rúbrica con la que se va a valorar. Cada estudiante anota qué cree que deberá demostrar al final.`,
-    Desarrollo:`En ${grupos}, ${ACTIVIDAD[nv](esc(herr.n))}. El docente circula y pregunta por las decisiones, no por el avance.`,
+    Desarrollo:`En ${grupos}, ${(ACTIVIDAD[nv]||ACTIVIDAD.aplicar)(esc(herr.n))}. El docente circula y pregunta por las decisiones, no por el avance.`,
     Cierre:`Tres minutos por equipo para mostrar la evidencia y contrastarla con la rúbrica. Cada estudiante anota qué haría distinto la próxima vez.`
   };
   $('salida-secuencia').innerHTML=`<p class="nota" style="margin-bottom:8px;font-size:13.5px">${(+d.sesiones||1)>1?(+d.sesiones)+' sesiones de '+d.duracion+' minutos':'Sesión de '+d.duracion+' minutos'} · ${esc(d.nivel)} · ${NOM_RESTR[d.restriccion]}</p>`+
@@ -1094,12 +1241,13 @@ function generar(sinScroll){
   $('salida-estudiante').innerHTML=`
     <p class="nota" style="font-size:13.5px;margin-bottom:6px">Evidencia que se valora: <b style="color:var(--texto)">${esc(d.evidencia)}</b></p>
     <div class="tabla"><table><thead><tr><th style="width:17%">Criterio · nivel ${nv}</th><th style="width:7%">Peso</th>${ESCALA_EST.map(n=>`<th>${n}</th>`).join('')}</tr></thead><tbody>
-    ${RUBRICA_EST[nv].map((f,i)=>`<tr><td><b>${f[0]}</b></td><td><b>${PESOS[i]} %</b></td>${f.slice(1).map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}
+    ${(A.dom!=='cognitivo'&&RUBRICA_DOM[A.dom]?RUBRICA_DOM[A.dom]:RUBRICA_EST[nv]).map((f,i)=>`<tr><td><b>${f[0]}</b></td><td><b>${PESOS[i]} %</b></td>${f.slice(1).map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}
     </tbody></table></div>
     <p class="nota" style="margin-top:12px">Los criterios salen del nivel del verbo «${esc(A.verbo.toLowerCase()||nv)}». Muéstresela a los estudiantes al inicio de la sesión.</p>`;
 
   /* trazabilidad */
   $('salida-trazabilidad').innerHTML=`
+    <div class="linea"><div class="t">Dominio</div><div class="d"><b>${A.dom}</b> — ${A.dom==='cognitivo'?'el verbo describe una operación mental.':A.dom==='psicomotor'?'el verbo describe una ejecución observable del cuerpo o de un instrumento.':'el verbo describe una disposición que se demuestra con conducta.'}${d.fijado&&d.fijado.dominio?' <span class="nota">Fijado por usted.</span>':''}</div></div>
     <div class="linea"><div class="t">Verbo</div><div class="d">«${esc(A.verbo||'—')}» se ubica en el nivel <b>${nv}</b>. Ese nivel pide una herramienta de <b>${TIPO[H.grupo]}</b>.
       <br><span class="nota">${A.fijado?'Nivel fijado por usted; el motor lo respeta.':'La regla que lo ubica ahí: la palabra «'+esc((A.verbo||'').toLowerCase())+'» está en la lista del nivel '+nv+'.'}</span></div></div>
     <div class="linea"><div class="t">Restricción</div><div class="d">${d.restriccion==='conectividad'?'Con conectividad estable se prioriza la herramienta que mejor registra el proceso.':'Con '+NOM_RESTR[d.restriccion]+' se descartan las herramientas en la nube: la actividad debe sostenerse sin ellas.'}</div></div>
@@ -1126,6 +1274,10 @@ function refrescar(){
     if($('resultado').classList.contains('visible') && leer().rae.length>=12 && leer().evidencia.length>=12) generar(true);
     else pintarSemaforo(analizar(leer()));
   },140);
+}
+function fijarDominioManual(v){
+  estado.fijado=Object.assign({},estado.fijado,{dominio:v,nivel:null,nivelEvidencia:null});
+  generar(true); pintarSemaforo(analizar(leer()));
 }
 function fijarNivelManual(v){
   estado.fijado = v ? Object.assign({}, estado.fijado, {nivel:v}) : null;
@@ -1159,6 +1311,9 @@ function cargar(d){
   estado.duracion=(+d.duracion>=20&&+d.duracion<=240)?+d.duracion:60;
   estado.sesiones=(+d.sesiones>=1&&+d.sesiones<=3)?+d.sesiones:1;
   estado.restriccion=NOM_RESTR[d.restriccion]?d.restriccion:'conectividad'; estado.herr=d.herr||null;
+  estado.dua=Object.assign({formatos:false,eleccion:false},d.dua||{});
+  ['formatos','eleccion'].forEach(k=>{ const b=document.querySelector(`#dua .opcion[data-v="${k}"]`);
+    if(b){ b.classList.toggle('on',!!estado.dua[k]); b.setAttribute('aria-pressed',estado.dua[k]?'true':'false'); } });
   estado.fijado=d.fijado||null;
   estado.tocado={etapa:true,restr:true,duracion:(+d.duracion||60)!==ETAPAS[estado.etapa][1]};
   fijarOpcion('etapa',estado.etapa); fijarOpcion('modalidad',estado.modalidad);
@@ -1198,6 +1353,13 @@ $('duracionOtro').addEventListener('input',e=>{
 $('sesiones').addEventListener('click',e=>{
   const b=e.target.closest('.opcion'); if(!b) return;
   estado.sesiones=parseInt(b.dataset.v); fijarOpcion('sesiones',estado.sesiones); ocultarAvisos(); refrescar();
+});
+$('dua').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  const k=b.dataset.v; estado.dua[k]=!estado.dua[k];
+  b.classList.toggle('on',estado.dua[k]);
+  b.setAttribute('aria-pressed',estado.dua[k]?'true':'false');
+  ocultarAvisos(); refrescar();
 });
 $('restriccion').addEventListener('click',e=>{
   const b=e.target.closest('.opcion'); if(!b) return;
@@ -1349,6 +1511,7 @@ $('importar').addEventListener('change',async e=>{
 
 document.addEventListener('change',e=>{
   if(e.target && e.target.id==='fijarNivel'){ fijarNivelManual(e.target.value || null); }
+  if(e.target && e.target.id==='fijarDominio'){ fijarDominioManual(e.target.value); }
 });
 
 /* casos de ejemplo y disciplinas */
