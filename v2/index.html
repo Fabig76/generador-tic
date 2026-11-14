@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b1120">
+<link rel="icon" href="icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icono-192.png">
 <title>Generador de actividades con TIC · Una idea digital para mi área</title>
 <meta name="description" content="Cinco decisiones docentes se convierten en una ficha, una secuencia y dos rúbricas, con un semáforo que califica la alineación en vivo. Funciona sin internet.">
 <style>
@@ -1493,7 +1495,9 @@ td.logro::before{content:"✓ Este diseño";display:block;font-size:9.5px;font-w
 .nota{font-size:12px;color:#7b8794}.chip{display:inline-block;font:inherit;font-size:11px;border:1px solid #d9dde7;border-radius:999px;padding:3px 9px;margin:0 4px 4px 0;color:#4a5568;background:#fff}.chip.on{border-color:#0b7f7a;color:#0b7f7a;font-weight:800}
 footer{padding:24px 0 50px;color:#7b8794;font-size:12px}footer a{color:#0b7f7a}@media print{body{background:#fff}section{break-inside:avoid}}`;
   const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1120"><title>${esc(tituloDe(d))} · actividad con TIC</title><style>${css}</style></head><body><div class="wrap">
+<meta name="theme-color" content="#0b1120">
+<link rel="icon" href="icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icono-192.png"><title>${esc(tituloDe(d))} · actividad con TIC</title><style>${css}</style></head><body><div class="wrap">
 <header><div class="kicker">Actividad generada con el Generador de actividades TIC</div><h1>${esc(tituloDe(d))}</h1>
 <ul class="datos"><li><b>Área:</b> ${esc(d.area||'—')}</li><li><b>Nivel:</b> ${esc(d.nivel)}</li><li><b>Sesión:</b> ${d.duracion} minutos</li><li><b>Restricción:</b> ${NOM_RESTR[d.restriccion]}</li><li><b>Alineación:</b> ${A.completo?coma(A.nota)+' / 5,0 · '+A.etq:'—'}</li></ul></header>
 ${sec('1 · Ficha de cinco campos','p-ficha').replace('<h3>Ficha para la pizarra virtual</h3>','')}${sec('2 · Secuencia de la sesión','salida-secuencia')}${sec('3 · Rúbrica del diseño, aplicada','salida-diseno')}${sec('4 · Rúbrica para el estudiante','salida-estudiante')}${sec('5 · Trazabilidad','salida-trazabilidad')}
