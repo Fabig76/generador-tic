@@ -457,7 +457,16 @@
             </div>
 
             <div class="campo">
-              <div class="et"><span>5</span><label>Restricciones reales del aula</label></div>
+              <div class="et"><span>5</span><label>Accesibilidad (opcional, suma en el semáforo)</label></div>
+              <div class="opciones" id="dua">
+                <button class="opcion" data-v="formatos">El material viene en más de un formato</button>
+                <button class="opcion" data-v="eleccion">La evidencia admite dos formas de entrega</button>
+              </div>
+              <div class="ayuda">Texto con audio, imagen con descripción, o entregar escrito o grabado: son caminos distintos para el mismo aprendizaje.</div>
+            </div>
+
+            <div class="campo">
+              <div class="et"><span>6</span><label>Restricciones reales del aula</label></div>
               <div class="opciones" id="restriccion">
                 <button class="opcion on" data-v="conectividad">Conectividad estable</button>
                 <button class="opcion" data-v="sinconexion">Conectividad inestable</button>
@@ -932,7 +941,13 @@ const RUBRICA_DISENO=[
        'Cabe en el tiempo con ajustes menores.',
        'Cabe con esfuerzo; queda poco margen para el cierre.',
        'Requiere más tiempo o recursos de los declarados.',
-       'No es ejecutable con las condiciones declaradas.'] }
+       'No es ejecutable con las condiciones declaradas.'] },
+  { c:'Accesibilidad y opciones', d:'Hay más de un camino para acceder y para demostrar el aprendizaje.',
+    n:['Cinco señales: varios formatos, dos formas de entregar, borrador previo, criterios compartidos y herramienta sin dependencia de la nube.',
+       'Cuatro de las cinco señales.',
+       'Tres señales: el diseño funciona, pero deja un solo camino en algún punto.',
+       'Dos señales: hay estudiantes que solo podrían demostrar el aprendizaje de una manera.',
+       'Menos de dos señales: el diseño depende de una única forma de acceder y de entregar.'] }
 ];
 
 const ESCALA_EST=['Excelente 4.6–5.0','Bueno 4.0–4.5','Aceptable 3.0–3.9','No aceptable 1.0–2.9'];
@@ -977,12 +992,12 @@ const ETAPAS={preescolar:['Preescolar',30],primaria:['Básica primaria',45],secu
   media:['Media',55],tecnica:['Técnica y tecnológica',120],pregrado:['Pregrado',60],posgrado:['Posgrado',90],
   continua:['Educación continua',60]};
 const MODALIDADES={presencial:'presencial',virtual:'virtual','hibrida':'híbrida','remota-baja':'remota con conexión intermitente'};
-const estado={ etapa:'pregrado', modalidad:'presencial', duracion:60, sesiones:1, restriccion:'conectividad',
+const estado={ etapa:'pregrado', modalidad:'presencial', duracion:60, sesiones:1, dua:{formatos:false,eleccion:false}, restriccion:'conectividad',
   herr:null, fijado:null, tocado:{etapa:false,restr:false,duracion:false} };
 const nivelTexto=()=>ETAPAS[estado.etapa][0]+' · '+MODALIDADES[estado.modalidad];
 const leer=()=>({ area:$('area').value.trim(), rae:$('rae').value.trim(), evidencia:$('evidencia').value.trim(),
   nivel:nivelTexto(), etapa:estado.etapa, modalidad:estado.modalidad,
-  duracion:estado.duracion, sesiones:estado.sesiones, restriccion:estado.restriccion, herr:estado.herr,
+  duracion:estado.duracion, sesiones:estado.sesiones, dua:estado.dua, restriccion:estado.restriccion, herr:estado.herr,
   fijado:estado.fijado });
 
 function buscarVerbo(txt){
@@ -1090,9 +1105,32 @@ function analizar(d){
     else crit.push({col:3,msg:`${(NOMBRE_TODOS[nv]||nv)} necesita más de ${etiqueta}. Amplíe la sesión o divídala.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
   }
 
+  /* 5 · accesibilidad y opciones (pautas DUA) */
+  if(observable){
+    const sen=[
+      !!(d.dua&&d.dua.formatos),
+      !!(d.dua&&d.dua.eleccion) || /\bo\s+(video|audio|grabaci[oó]n|escrito|presentaci[oó]n)/i.test(d.evidencia),
+      /borrador|revisi[oó]n de pares|coevaluaci[oó]n/i.test(d.evidencia),
+      true,                                  /* la rúbrica del estudiante se entrega con la actividad */
+      true                                   /* la herramienta propuesta ya cabe en las restricciones del aula */
+    ];
+    const n=sen.filter(Boolean).length;
+    const col=n>=5?0:n===4?1:n===3?2:n===2?3:4;
+    const faltan=[['material en más de un formato',sen[0]],['dos formas de entregar',sen[1]],['una ronda de borrador',sen[2]],['criterios antes de entregar',sen[3]],['una herramienta que funcione sin conexión',sen[4]]]
+      .filter(x=>!x[1]).map(x=>x[0]);
+    const acc=[];
+    if(!sen[0]) acc.push({t:'Material en más de un formato',a:'dua',v:'formatos'});
+    if(!sen[1]) acc.push({t:'Permitir entrega en video o audio',a:'dua',v:'eleccion'});
+    crit.push({col, msg: n>=5
+      ? 'El diseño ofrece cinco caminos: varios formatos, dos formas de entregar, borrador, criterios previos y herramienta que no depende de la nube.'
+      : `Faltan señales de diseño universal: ${faltan.slice(0,2).join(' y ')}.`, acc});
+  }else{
+    crit.push({col:-1,msg:'Se calcula cuando el resultado tenga un verbo observable.',acc:[]});
+  }
+
   crit.forEach((k,i)=>{ k.c=RUBRICA_DISENO[i].c; if(k.col>=0){ k.pt=PUNTOS[k.col]; k.estado=k.col<=1?'ok':k.col===2?'medio':'mal'; } });
   const val=crit.filter(k=>k.col>=0);
-  const completo=val.length===4;
+  const completo=val.length===5;
   let nota=val.length ? Math.round(val.reduce((a,k)=>a+k.pt,0)/val.length*10)/10 : null;
   /* si la evidencia no demuestra el resultado, lo demás no lo compensa */
   const peor=Math.max(crit[0].col,crit[2].col), techo=peor===4?2.9:3.9;
@@ -1273,6 +1311,9 @@ function cargar(d){
   estado.duracion=(+d.duracion>=20&&+d.duracion<=240)?+d.duracion:60;
   estado.sesiones=(+d.sesiones>=1&&+d.sesiones<=3)?+d.sesiones:1;
   estado.restriccion=NOM_RESTR[d.restriccion]?d.restriccion:'conectividad'; estado.herr=d.herr||null;
+  estado.dua=Object.assign({formatos:false,eleccion:false},d.dua||{});
+  ['formatos','eleccion'].forEach(k=>{ const b=document.querySelector(`#dua .opcion[data-v="${k}"]`);
+    if(b){ b.classList.toggle('on',!!estado.dua[k]); b.setAttribute('aria-pressed',estado.dua[k]?'true':'false'); } });
   estado.fijado=d.fijado||null;
   estado.tocado={etapa:true,restr:true,duracion:(+d.duracion||60)!==ETAPAS[estado.etapa][1]};
   fijarOpcion('etapa',estado.etapa); fijarOpcion('modalidad',estado.modalidad);
@@ -1312,6 +1353,13 @@ $('duracionOtro').addEventListener('input',e=>{
 $('sesiones').addEventListener('click',e=>{
   const b=e.target.closest('.opcion'); if(!b) return;
   estado.sesiones=parseInt(b.dataset.v); fijarOpcion('sesiones',estado.sesiones); ocultarAvisos(); refrescar();
+});
+$('dua').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  const k=b.dataset.v; estado.dua[k]=!estado.dua[k];
+  b.classList.toggle('on',estado.dua[k]);
+  b.setAttribute('aria-pressed',estado.dua[k]?'true':'false');
+  ocultarAvisos(); refrescar();
 });
 $('restriccion').addEventListener('click',e=>{
   const b=e.target.closest('.opcion'); if(!b) return;
