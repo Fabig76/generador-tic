@@ -1,0 +1,46 @@
+{
+ "version": 1,
+ "actualizado": "2026-11-14",
+ "actividades": [
+  {
+   "area": "Enfermería · urgencias",
+   "rae": "Ejecutar la técnica de RCP básica en un maniquí siguiendo la secuencia completa",
+   "evidencia": "La lista de chequeo diligenciada por un par y el video de la ejecución",
+   "etapa": "pregrado",
+   "modalidad": "presencial",
+   "duracion": 60,
+   "restriccion": "conectividad",
+   "autor": "Heyler Guaza"
+  },
+  {
+   "area": "Derecho · derecho de familia",
+   "rae": "Analizar un caso de alimentos entre padres separados y proponer una solución jurídica justificada",
+   "evidencia": "El escrito de análisis del caso con la norma aplicada y la propuesta de solución",
+   "etapa": "pregrado",
+   "modalidad": "presencial",
+   "duracion": 90,
+   "restriccion": "conectividad",
+   "autor": "Heyler Guaza"
+  },
+  {
+   "area": "Comunicación social · producción sonora",
+   "rae": "Crear un pódcast de tres minutos que explique una problemática de la comunidad",
+   "evidencia": "El pódcast publicado con su guion y una reseña de doscientas palabras",
+   "etapa": "pregrado",
+   "modalidad": "presencial",
+   "duracion": 120,
+   "restriccion": "sinconexion",
+   "autor": "Heyler Guaza"
+  },
+  {
+   "area": "Matemáticas · fracciones",
+   "rae": "Representar fracciones equivalentes con material concreto y explicar por qué lo son",
+   "evidencia": "El registro fotográfico de tres representaciones y la explicación escrita",
+   "etapa": "primaria",
+   "modalidad": "presencial",
+   "duracion": 45,
+   "restriccion": "sinequipos",
+   "autor": "Banco de la comunidad"
+  }
+ ]
+}

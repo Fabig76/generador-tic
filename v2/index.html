@@ -600,6 +600,9 @@
       <div class="titulo"><span class="n">05</span><h2>¿Qué disciplinas pueden usarlo?</h2></div>
       <p class="sub">Todas las que puedan decir qué hace el estudiante y qué entrega. El generador no lee el contenido de su materia: lee el verbo y el entregable, y eso existe en cualquier área. Toque un ejemplo para verlo cargado.</p>
       <div class="banco" id="listaDisc"></div>
+      <div class="titulo" style="margin-top:26px"><span class="n">05b</span><h2>Del banco de la comunidad</h2></div>
+      <p class="sub">Actividades que otras personas ya diseñaron y compartieron. Se abren con un toque y se adaptan a su curso.</p>
+      <div class="banco" id="listaBanco"><p class="nota">Cargando…</p></div>
       <div class="panel" style="margin-top:18px">
         <div class="linea"><div class="t">Funciona mejor</div><div class="d">Cuando la clase termina en algo que se puede recibir: un informe, un cálculo, un prototipo, un video, una sustentación.</div></div>
         <div class="linea"><div class="t">Le cuesta</div><div class="d">Con aprendizajes de actitud o de valores («apreciar», «sensibilizarse»), porque no dejan un entregable. El semáforo le pedirá que diga qué haría el estudiante para mostrarlo.</div></div>
@@ -1063,7 +1066,9 @@ function elegirHerramienta(d,nv,gap){
   const ctx=d.area+' '+d.rae+' '+d.evidencia;
   const ctxFuerte=d.area+' '+d.rae;               /* lo que el docente quiere lograr pesa más que el entregable */
   const orden=h=>!h.si?2:(h.si.test(ctxFuerte)?0:h.si.test(ctx)?1:3);
-  const todas=[...HERRAMIENTAS[grupo]].sort((a,b)=>orden(a)-orden(b));
+  const propias=leerHerramientas().map(h=>({n:h.n,t:h.t,nube:h.conexion!=='ninguna',amb:'ambos',propia:true,grupos:(h.grupos||['crear','simular','colaborar','practicar','reflexionar','explicar','comprobar'])}));
+  const delGrupo=[...HERRAMIENTAS[grupo],...propias.filter(h=>h.grupos.includes(grupo))];
+  const todas=delGrupo.sort((a,b)=>orden(a)-orden(b));
   let aptas=todas.filter(h=>!(sinNube&&h.nube));
   const porModalidad=aptas.filter(h=>h.nube || !virtual || h.amb!=='aula');
   const encaja=porModalidad.length>0;
@@ -1287,7 +1292,21 @@ function generar(sinScroll){
     <div class="linea"><div class="t">Verbo</div><div class="d">«${esc(A.verbo||'—')}» se ubica en el nivel <b>${nv}</b>. Ese nivel pide una herramienta de <b>${TIPO[H.grupo]}</b>.
       <br><span class="nota">${A.fijado?'Nivel fijado por usted; el motor lo respeta.':'La regla que lo ubica ahí: la palabra «'+esc((A.verbo||'').toLowerCase())+'» está en la lista del nivel '+nv+'.'}</span></div></div>
     <div class="linea"><div class="t">Restricción</div><div class="d">${d.restriccion==='conectividad'?'Con conectividad estable se prioriza la herramienta que mejor registra el proceso.':'Con '+NOM_RESTR[d.restriccion]+' se descartan las herramientas en la nube: la actividad debe sostenerse sin ellas.'}</div></div>
-    <div class="linea"><div class="t">Alternativas</div><div class="d">${H.aptas.map(h=>`<button class="chip ${h===herr?'on':''}" data-herr="${esc(h.n)}" title="${esc(h.t)}">${esc(h.n)}</button>`).join('')}<br><span class="nota">Toque otra para cambiar la herramienta; todo se recalcula.</span></div></div>
+    <div class="linea"><div class="t">Alternativas</div><div class="d">${H.aptas.map(h=>`<button class="chip ${h===herr?'on':''}" data-herr="${esc(h.n)}" title="${esc(h.t)}">${esc(h.n)}</button>`).join('')}<br><span class="nota">Toque otra para cambiar la herramienta; todo se recalcula.</span>
+      <details style="margin-top:10px">
+        <summary class="nota" style="cursor:pointer">¿Su herramienta no está en la lista? Agréguela</summary>
+        <div style="display:grid;gap:8px;margin-top:10px;max-width:520px">
+          <input id="mhNombre" placeholder="Nombre (ej. simulador de la clínica)" style="font:inherit;font-size:13px;padding:8px 10px;border-radius:9px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto)">
+          <input id="mhDeja" placeholder="Qué deja ver (ej. la maniobra paso a paso)" style="font:inherit;font-size:13px;padding:8px 10px;border-radius:9px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto)">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <select id="mhConexion" aria-label="Conexión" style="font:inherit;font-size:12.5px;padding:7px 9px;border-radius:9px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto)">
+              <option value="opcional">Conexión opcional</option><option value="requerida">Requiere conexión</option><option value="ninguna">Funciona sin conexión</option>
+            </select>
+            <button class="btn" id="mhGuardar" style="font-size:12.5px">Agregar</button>
+          </div>
+          <span class="nota">Se guarda en este equipo y viaja en el enlace compartido.</span>
+        </div>
+      </details></div></div>
     <div class="linea"><div class="t">Descartadas</div><div class="d">${H.descartadas.map(h=>`<span class="chip">${esc(h.n)} · ${h.por}</span>`).join('') || 'Ninguna: sus condiciones permiten todas.'}</div></div>
     <div class="linea"><div class="t">Evidencia</div><div class="d"><b>${esc(d.evidencia)}</b>${A.ev?` — reconocida como «${esc(A.ev.palabra)}», nivel ${A.ev.nivel}${A.ev.fijado?' (fijado por usted)':''}.`+(A.ev.todas&&A.ev.todas.length>1?` También aparecen: ${A.ev.todas.filter(x=>x!==A.ev.nivel).join(', ')}; se toma el más alto.`:''):''}</div></div>`;
 
@@ -1507,6 +1526,9 @@ ${sec('1 · Ficha de cinco campos','p-ficha').replace('<h3>Ficha para la pizarra
 
 /* banco */
 let memoria=[];
+function leerHerramientas(){ try{ const t=JSON.parse(localStorage.getItem('tic-herramientas')||'[]'); return Array.isArray(t)?t:[]; }catch(e){ return []; } }
+function escribirHerramientas(lista){ try{ localStorage.setItem('tic-herramientas',JSON.stringify(lista)); }catch(e){} }
+
 function leerBanco(){ try{ const b=JSON.parse(localStorage.getItem('tic-banco')||'[]'); return Array.isArray(b)?b:[]; }catch(e){ return memoria; } }
 function escribirBanco(b){ memoria=b; try{ localStorage.setItem('tic-banco',JSON.stringify(b)); }catch(e){} pintarBanco(); }
 function pintarBanco(){
@@ -1548,6 +1570,19 @@ $('importar').addEventListener('change',async e=>{
   e.target.value='';
 });
 
+document.addEventListener('click',e=>{
+  if(e.target && e.target.id==='mhGuardar'){
+    const n=(document.getElementById('mhNombre').value||'').trim();
+    const t=(document.getElementById('mhDeja').value||'').trim()||'herramienta propia del docente';
+    const conexion=document.getElementById('mhConexion').value;
+    if(n.length<3){ avisar('Escriba al menos el nombre de la herramienta.'); return; }
+    const lista=leerHerramientas();
+    if(!lista.some(x=>x.n.toLowerCase()===n.toLowerCase())) lista.push({n,t,conexion,fecha:new Date().toISOString().slice(0,10)});
+    escribirHerramientas(lista); avisar('Herramienta agregada. Aparece en las alternativas.');
+    generar(true); pintarSemaforo(analizar(leer()));
+  }
+});
+
 document.addEventListener('change',e=>{
   if(e.target && e.target.id==='fijarNivel'){ fijarNivelManual(e.target.value || null); }
   if(e.target && e.target.id==='fijarDominio'){ fijarDominioManual(e.target.value); }
@@ -1566,6 +1601,23 @@ const CASOS={
   artes:{g:'Artes, diseño y comunicación',area:'Comunicación Social · narrativa sonora',rae:'Producir un pódcast de tres minutos que cuente una historia local con inicio, conflicto y cierre.',evidencia:'El pódcast terminado, con el guion y una bitácora de las decisiones de edición.',nivel:P,duracion:120,restriccion:'sinconexion'},
   basicas:{g:'Ciencias básicas',area:'Física · circuitos eléctricos',rae:'Resolver circuitos en serie y en paralelo con la ley de Ohm para predecir la corriente en cada rama.',evidencia:'El taller resuelto con tres circuitos nuevos, el registro del procedimiento y la comprobación en el simulador.',nivel:P,duracion:60,restriccion:'conectividad'}
 };
+/* banco de la comunidad: solo cuando hay red; si falla, no pasa nada */
+(async function(){
+  const caja=document.getElementById('listaBanco'); if(!caja) return;
+  if(!/^https?:/.test(location.protocol)){
+    caja.innerHTML='<p class="nota">El banco de la comunidad se ve cuando la página está publicada. Abierta desde su equipo, todo lo demás funciona igual.</p>';
+    return;
+  }
+  try{
+    const r=await fetch('banco/index.json',{cache:'no-store'}); if(!r.ok) throw 0;
+    const j=await r.json(); const acts=(j.actividades||[]).slice(0,6);
+    if(!acts.length){ caja.innerHTML='<p class="nota">Todavía no hay actividades compartidas.</p>'; return; }
+    caja.innerHTML=acts.map((a,i)=>`<button class="disc" data-banco="${i}"><b>${a.area.split('·')[0].trim()}</b><span>${a.rae.slice(0,90)}…</span><i>${a.etapa} · ${a.duracion} min · ${a.autor||'comunidad'}</i></button>`).join('');
+    caja.addEventListener('click',ev=>{ const b=ev.target.closest('[data-banco]'); if(!b) return;
+      const a=acts[+b.dataset.banco]; cargar(a); generar(); });
+  }catch(e){ caja.innerHTML='<p class="nota">El banco de la comunidad necesita conexión. Todo lo demás funciona sin ella.</p>'; }
+})();
+
 $('listaDisc').innerHTML=Object.entries(CASOS).filter(([,c])=>c.g).map(([k,c])=>{ const A=analizar(c);
   return `<article class="guardada"><div class="area">${esc(c.g)}</div><h4>${esc(c.area)}</h4><p>${esc(c.rae)}</p>
     <div class="pie"><span class="nt" style="flex-basis:100%">${coma(A.nota)} · ${esc(A.H.herr.n)}</span><button class="btn" data-caso="${k}">Probar</button></div></article>`; }).join('');
