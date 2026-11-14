@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1120">
 <title>Generador de actividades con TIC · Una idea digital para mi área</title>
 <meta name="description" content="Cinco decisiones docentes se convierten en una ficha, una secuencia y dos rúbricas, con un semáforo que califica la alineación en vivo. Funciona sin internet.">
 <style>
@@ -916,6 +917,34 @@ function nivelEvidenciaDom(txt,dom){
 }
 function posicion(dom,nv){ const arr=DOMINIOS[dom]; const i=arr.indexOf(nv); return i<0?0:i/(arr.length-1)*5; }
 
+
+/* ---------- M3 · tipo de aprendizaje (Laurillard / ABC Learning Design) ---------- */
+const TIPOS_APR={
+  adquisicion:{n:'Adquisición',d:'lee, escucha u observa'},
+  indagacion:{n:'Indagación',d:'explora, compara fuentes y datos'},
+  practica:{n:'Práctica',d:'ejecuta con retroalimentación'},
+  produccion:{n:'Producción',d:'construye un producto'},
+  discusion:{n:'Discusión',d:'argumenta e intercambia'},
+  colaboracion:{n:'Colaboración',d:'construye algo en conjunto'}
+};
+const RE_PASIVO=/^\s*(que\s+)?(los\s+estudiantes\s+)?(vean|ver|lean|leer|escuchen|escuchar|observen|observar|miren|mirar)\b/i;
+function tipoDe(d,dom,nv){
+  const r=(d.rae||'').toLowerCase();
+  const ctx=(d.area||'')+' '+(d.rae||'')+' '+(d.evidencia||'');
+  let tipo;
+  if(dom==='psicomotor') tipo='practica';
+  else if(dom==='afectivo') tipo='discusion';
+  else tipo={recordar:'practica',comprender:'produccion',aplicar:'practica',analizar:'indagacion',evaluar:'discusion',crear:'produccion'}[nv]||'produccion';
+  let regla='el nivel del verbo define la forma de la actividad';
+  if(dom==='cognitivo' && nv==='comprender' && /explic|comunic|expres|expon/.test(r)){ tipo='discusion'; regla='el verbo pide explicar o comunicar, y eso se hace discutiendo'; }
+  if(/audit|m[eé]tric|desagreg|dataset|datos|modelo|clasificador|algoritmo|estad[ií]stic|indicador/.test(r)){ tipo='indagacion'; regla='el resultado nombra datos o métricas: se aprende indagando'; }
+  let secundario=null;
+  if(/equipo|grupos?|colectiv|coevalu|entre pares/.test(ctx)) secundario='colaboracion';
+  const pasivo=RE_PASIVO.test(d.rae||'') && !/\b(elab|cre|dise|constru|resuelv|aplic|analiz|evalu|argument)/i.test(d.rae||'');
+  if(pasivo){ tipo='adquisicion'; regla='el resultado solo pide ver, leer o escuchar: eso es adquisición, no una actividad evaluable'; }
+  return {tipo,secundario,regla,pasivo};
+}
+
 const PUNTOS=[5.0,4.7,4.2,3.4,2.0];
 const RUBRICA_DISENO=[
   { c:'Pertinencia del resultado', d:'El resultado es observable y la evidencia lo demuestra.',
@@ -1054,6 +1083,7 @@ function analizar(d){
   if(d.fijado&&d.fijado.nivelEvidencia&&!ev) ev={nivel:d.fijado.nivelEvidencia,palabra:'(fijada por usted)',fijado:true};
   const iE=ev ? DOMINIOS[dom].indexOf(ev.nivel) : -1;
   const proceso=RE_PROCESO.test(d.evidencia);
+  const T=tipoDe(d,dom,nv);
   const H=elegirHerramienta(d,nv);
   const crit=[];
   const pend=m=>({col:-1,estado:'',msg:m,acc:[]});
@@ -1074,6 +1104,9 @@ function analizar(d){
     acc:[{t:'Usar: '+(SUG_EVID[nv]||SUG_EVID.aplicar).toLowerCase().replace(/\.$/,''),a:'evid',v:(SUG_EVID[nv]||SUG_EVID.aplicar)}]});
 
   /* 2 · coherencia */
+  if(T.pasivo){
+    crit.push({col:3,msg:`«${verbo||'Ver'}» es una forma de adquisición: mirar o leer no demuestra el aprendizaje. Añada qué hace el estudiante con eso.`,acc:[{t:'Convertir en producción',a:'verbo',v:'elaborar'}]});
+  } else
   if(!observable) crit.push(pend('Se calcula cuando el resultado tenga un verbo observable.'));
   else if(!H.encaja) crit.push({col:3,msg:`Sin conexión y en modalidad virtual quedan pocas opciones: ${H.herr.n} es lo más cercano. Revise la modalidad o la restricción.`,acc:[]});
   else if(d.restriccion!=='conectividad') crit.push({col:1,msg:`Se descartaron ${H.descartadas.length} herramientas que no caben en su aula. ${H.herr.n} funciona sin conexión y deja ver ${(DEJA_VER[nv]||DEJA_VER.aplicar)}.`,acc:[]});
@@ -1137,7 +1170,7 @@ function analizar(d){
   const topado=nota!==null && peor>=3 && nota>techo;
   if(topado) nota=techo;
   const etq=nota===null?'':nota>=4.95?'Excelente':nota>=4.6?'Sobresaliente':nota>=4.0?'Bueno':nota>=3.0?'Aceptable':'No aceptable';
-  return {v,verbo,observable,nv,dom,ev,H,crit,completo,nota,etq,topado,fijado:fijadoActivo};
+  return {v,verbo,observable,nv,dom,ev,H,T,crit,completo,nota,etq,topado,fijado:fijadoActivo};
 }
 const coma=n=>n.toFixed(1).replace('.',',');
 
@@ -1248,6 +1281,7 @@ function generar(sinScroll){
   /* trazabilidad */
   $('salida-trazabilidad').innerHTML=`
     <div class="linea"><div class="t">Dominio</div><div class="d"><b>${A.dom}</b> — ${A.dom==='cognitivo'?'el verbo describe una operación mental.':A.dom==='psicomotor'?'el verbo describe una ejecución observable del cuerpo o de un instrumento.':'el verbo describe una disposición que se demuestra con conducta.'}${d.fijado&&d.fijado.dominio?' <span class="nota">Fijado por usted.</span>':''}</div></div>
+    <div class="linea"><div class="t">Tipo</div><div class="d"><b>${A.T?A.T.tipo:'—'}</b> — ${A.T?TIPOS_APR[A.T.tipo].d:'—'}${A.T&&A.T.secundario?` · con ${A.T.secundario} como secundario`:''}.<br><span class="nota">${A.T?A.T.regla:''}</span></div></div>
     <div class="linea"><div class="t">Verbo</div><div class="d">«${esc(A.verbo||'—')}» se ubica en el nivel <b>${nv}</b>. Ese nivel pide una herramienta de <b>${TIPO[H.grupo]}</b>.
       <br><span class="nota">${A.fijado?'Nivel fijado por usted; el motor lo respeta.':'La regla que lo ubica ahí: la palabra «'+esc((A.verbo||'').toLowerCase())+'» está en la lista del nivel '+nv+'.'}</span></div></div>
     <div class="linea"><div class="t">Restricción</div><div class="d">${d.restriccion==='conectividad'?'Con conectividad estable se prioriza la herramienta que mejor registra el proceso.':'Con '+NOM_RESTR[d.restriccion]+' se descartan las herramientas en la nube: la actividad debe sostenerse sin ellas.'}</div></div>
@@ -1458,7 +1492,8 @@ td{padding:8px;border-bottom:1px solid #eef0f5;vertical-align:top;color:#4a5568}
 td.logro::before{content:"✓ Este diseño";display:block;font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#0b7f7a}.resumen-nota{font-size:14px;color:#4a5568;margin-bottom:10px}.resumen-nota strong{font-size:24px;color:#101828}
 .nota{font-size:12px;color:#7b8794}.chip{display:inline-block;font:inherit;font-size:11px;border:1px solid #d9dde7;border-radius:999px;padding:3px 9px;margin:0 4px 4px 0;color:#4a5568;background:#fff}.chip.on{border-color:#0b7f7a;color:#0b7f7a;font-weight:800}
 footer{padding:24px 0 50px;color:#7b8794;font-size:12px}footer a{color:#0b7f7a}@media print{body{background:#fff}section{break-inside:avoid}}`;
-  const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(tituloDe(d))} · actividad con TIC</title><style>${css}</style></head><body><div class="wrap">
+  const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1120"><title>${esc(tituloDe(d))} · actividad con TIC</title><style>${css}</style></head><body><div class="wrap">
 <header><div class="kicker">Actividad generada con el Generador de actividades TIC</div><h1>${esc(tituloDe(d))}</h1>
 <ul class="datos"><li><b>Área:</b> ${esc(d.area||'—')}</li><li><b>Nivel:</b> ${esc(d.nivel)}</li><li><b>Sesión:</b> ${d.duracion} minutos</li><li><b>Restricción:</b> ${NOM_RESTR[d.restriccion]}</li><li><b>Alineación:</b> ${A.completo?coma(A.nota)+' / 5,0 · '+A.etq:'—'}</li></ul></header>
 ${sec('1 · Ficha de cinco campos','p-ficha').replace('<h3>Ficha para la pizarra virtual</h3>','')}${sec('2 · Secuencia de la sesión','salida-secuencia')}${sec('3 · Rúbrica del diseño, aplicada','salida-diseno')}${sec('4 · Rúbrica para el estudiante','salida-estudiante')}${sec('5 · Trazabilidad','salida-trazabilidad')}
@@ -1555,6 +1590,24 @@ function desdeEnlace(){
 pintarBanco();
 if(!desdeEnlace()) cargarEjemplo(true);
 addEventListener('hashchange',()=>{ if(desdeEnlace()) $('resultado').scrollIntoView({behavior:'smooth'}); });
+</script>
+<script>
+/* PWA: solo cuando se sirve por https; desde file:// no se registra nada. */
+if(location.protocol==='https:'){
+  const m=document.createElement('link'); m.rel='manifest'; m.href='manifest.json'; document.head.appendChild(m);
+}
+if(location.protocol==='https:' && 'serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+<script>
+/* PWA: solo cuando se sirve por https; desde file:// no se registra nada. */
+if(location.protocol==='https:'){
+  const m=document.createElement('link'); m.rel='manifest'; m.href='manifest.json'; document.head.appendChild(m);
+}
+if(location.protocol==='https:' && 'serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>
