@@ -28,3 +28,14 @@ La nota es una estimación por reglas, pensada para conversar sobre el diseño; 
 
 Actividad del módulo 72P05 «Una idea digital para mi área».
 Heyler Fabio Guaza Lesmes · Especialización en Docencia Universitaria.
+
+
+## Version 2 (rama `v2`)
+
+- Perfil del docente con **etapa** (preescolar a educacion continua) y **modalidad** separadas.
+- Duraciones de 30 a 240 minutos y actividades de **1 a 3 sesiones**.
+- Catalogo con herramientas por disciplina: caso clinico, caso juridico, debate, laboratorio de campo, maqueta.
+- **Deteccion explicable**: el chip del verbo permite corregir el nivel y la trazabilidad dice que regla se aplico.
+- Pruebas de regresion en `tests/` (`node tests/correr.mjs`); las 9 notas de la v1 se conservan.
+
+Vista previa: https://fabig76.github.io/generador-tic/v2/

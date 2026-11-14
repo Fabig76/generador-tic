@@ -418,19 +418,41 @@
 
             <div class="campo">
               <div class="et"><span>4</span><label>Nivel y modalidad</label></div>
-              <div class="opciones" id="nivel">
-                <button class="opcion on" data-v="Pregrado · presencial">Pregrado · presencial</button>
-                <button class="opcion" data-v="Pregrado · virtual">Pregrado · virtual</button>
-                <button class="opcion" data-v="Pregrado · híbrido">Pregrado · híbrido</button>
-                <button class="opcion" data-v="Posgrado · presencial">Posgrado · presencial</button>
-                <button class="opcion" data-v="Posgrado · virtual">Posgrado · virtual</button>
-                <button class="opcion" data-v="Posgrado · híbrido">Posgrado · híbrido</button>
+              <div class="ayuda" style="margin-bottom:8px">Nivel educativo</div>
+              <div class="opciones" id="etapa">
+                <button class="opcion" data-v="preescolar">Preescolar</button>
+                <button class="opcion" data-v="primaria">Básica primaria</button>
+                <button class="opcion" data-v="secundaria">Básica secundaria</button>
+                <button class="opcion" data-v="media">Media</button>
+                <button class="opcion" data-v="tecnica">Técnica y tecnológica</button>
+                <button class="opcion on" data-v="pregrado">Pregrado</button>
+                <button class="opcion" data-v="posgrado">Posgrado</button>
+                <button class="opcion" data-v="continua">Educación continua</button>
+              </div>
+              <div class="ayuda" style="margin:12px 0 8px">Modalidad</div>
+              <div class="opciones" id="modalidad">
+                <button class="opcion on" data-v="presencial">Presencial</button>
+                <button class="opcion" data-v="virtual">Virtual</button>
+                <button class="opcion" data-v="hibrida">Híbrida</button>
+                <button class="opcion" data-v="remota-baja">Remota con conexión intermitente</button>
               </div>
               <div class="ayuda" style="margin:12px 0 8px">Duración de la sesión</div>
               <div class="opciones" id="duracion">
-                <button class="opcion on" data-v="60">60 minutos</button>
-                <button class="opcion" data-v="90">90 minutos</button>
-                <button class="opcion" data-v="120">120 minutos</button>
+                <button class="opcion" data-v="30">30</button>
+                <button class="opcion" data-v="45">45</button>
+                <button class="opcion" data-v="55">55</button>
+                <button class="opcion on" data-v="60">60</button>
+                <button class="opcion" data-v="90">90</button>
+                <button class="opcion" data-v="120">120</button>
+                <button class="opcion" data-v="0">Otro…</button>
+                <input type="number" id="duracionOtro" min="20" max="240" step="5" placeholder="min"
+                  style="width:88px;font:inherit;font-size:13px;padding:6px 9px;border-radius:999px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto);display:none">
+              </div>
+              <div class="ayuda" style="margin-top:10px">Sesiones</div>
+              <div class="opciones" id="sesiones">
+                <button class="opcion on" data-v="1">1 sesión</button>
+                <button class="opcion" data-v="2">2 sesiones</button>
+                <button class="opcion" data-v="3">3 sesiones</button>
               </div>
             </div>
 
@@ -851,9 +873,16 @@ const PESOS=[30,30,20,20];
 /* ============================================================
    4 · MOTOR DE ALINEACIÓN
    ============================================================ */
-const estado={ nivel:'Pregrado · presencial', duracion:60, restriccion:'conectividad', herr:null, fijado:null, tocado:{nivel:false,restr:false} };
+const ETAPAS={preescolar:['Preescolar',30],primaria:['Básica primaria',45],secundaria:['Básica secundaria',55],
+  media:['Media',55],tecnica:['Técnica y tecnológica',120],pregrado:['Pregrado',60],posgrado:['Posgrado',90],
+  continua:['Educación continua',60]};
+const MODALIDADES={presencial:'presencial',virtual:'virtual','hibrida':'híbrida','remota-baja':'remota con conexión intermitente'};
+const estado={ etapa:'pregrado', modalidad:'presencial', duracion:60, sesiones:1, restriccion:'conectividad',
+  herr:null, fijado:null, tocado:{etapa:false,restr:false,duracion:false} };
+const nivelTexto=()=>ETAPAS[estado.etapa][0]+' · '+MODALIDADES[estado.modalidad];
 const leer=()=>({ area:$('area').value.trim(), rae:$('rae').value.trim(), evidencia:$('evidencia').value.trim(),
-  nivel:estado.nivel, duracion:estado.duracion, restriccion:estado.restriccion, herr:estado.herr,
+  nivel:nivelTexto(), etapa:estado.etapa, modalidad:estado.modalidad,
+  duracion:estado.duracion, sesiones:estado.sesiones, restriccion:estado.restriccion, herr:estado.herr,
   fijado:estado.fijado });
 
 function buscarVerbo(txt){
@@ -943,11 +972,15 @@ function analizar(d){
     crit.push({col:4,msg:'Modalidad virtual y «sin equipos por estudiante» se contradicen. Revise una de las dos decisiones.',acc:[]});
   else if(!observable) crit.push(pend('Se calcula cuando el resultado tenga un verbo observable.'));
   else{
-    const pide=[60,60,60,90,90,120][iV], dif=d.duracion-pide;
-    if(dif>=30 || (dif===0 && iV<=2)) crit.push({col:0,msg:`${NOMBRE[nv]} cabe con holgura en ${d.duracion} minutos y deja margen para retroalimentar.`,acc:[]});
-    else if(dif===0) crit.push({col:1,msg:`${NOMBRE[nv]} cabe en ${d.duracion} minutos si el inicio es breve.`,acc:[]});
-    else if(dif===-30) crit.push({col:2,msg:`${NOMBRE[nv]} en ${d.duracion} minutos cabe con esfuerzo y deja poco cierre.`,acc:[{t:`Pasar a ${pide} minutos`,a:'dur',v:pide}]});
-    else crit.push({col:3,msg:`${NOMBRE[nv]} necesita más de ${d.duracion} minutos. Amplíe la sesión o divida el producto en dos entregas.`,acc:[{t:`Pasar a ${pide} minutos`,a:'dur',v:pide}]});
+    const pide=[60,60,60,90,90,120][iV];
+    const ses=(+d.sesiones||1), total=d.duracion*ses;
+    const dif=total-pide;
+    const etiqueta=ses>1?`${ses} sesiones de ${d.duracion} min`:`${d.duracion} minutos`;
+    const accSes=ses<3?[{t:'Dividir en 2 sesiones',a:'ses',v:2}]:[];
+    if(dif>=30 || (dif===0 && iV<=2)) crit.push({col:0,msg:`${NOMBRE[nv]} cabe con holgura en ${etiqueta} y deja margen para retroalimentar.`,acc:[]});
+    else if(dif===0) crit.push({col:1,msg:`${NOMBRE[nv]} cabe en ${etiqueta} si el inicio es breve.`,acc:[]});
+    else if(dif===-30) crit.push({col:2,msg:`${NOMBRE[nv]} en ${etiqueta} cabe con esfuerzo y deja poco cierre.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
+    else crit.push({col:3,msg:`${NOMBRE[nv]} necesita más de ${etiqueta}. Amplíe la sesión o divídala.`,acc:[{t:`Pasar a ${pide} min`,a:'dur',v:pide},...accSes]});
   }
 
   crit.forEach((k,i)=>{ k.c=RUBRICA_DISENO[i].c; if(k.col>=0){ k.pt=PUNTOS[k.col]; k.estado=k.col<=1?'ok':k.col===2?'medio':'mal'; } });
@@ -991,9 +1024,12 @@ function pintarSemaforo(A){
    5 · GENERACIÓN DE LAS PIEZAS
    ============================================================ */
 function tiempos(t){
+  const r5=n=>Math.max(5,Math.round(n/5)*5);
   if(t===60) return [{t:'Inicio',m:10},{t:'Desarrollo',m:30},{t:'Cierre',m:20}];
   if(t===90) return [{t:'Inicio',m:15},{t:'Desarrollo',m:50},{t:'Cierre',m:25}];
-  return [{t:'Inicio',m:20},{t:'Desarrollo',m:65},{t:'Cierre',m:35}];
+  if(t===120) return [{t:'Inicio',m:20},{t:'Desarrollo',m:65},{t:'Cierre',m:35}];
+  const ini=r5(t*0.17), fin=r5(t*0.23);
+  return [{t:'Inicio',m:ini},{t:'Desarrollo',m:Math.max(10,t-ini-fin)},{t:'Cierre',m:fin}];
 }
 const NOM_RESTR={conectividad:'conectividad estable',sinconexion:'conectividad inestable',sinequipos:'sin equipos por estudiante'};
 const minus=s=>{ s=s.replace(/\.+$/,''); return s.charAt(0).toLowerCase()+s.slice(1); };
@@ -1034,7 +1070,7 @@ function generar(sinScroll){
     Desarrollo:`En ${grupos}, ${ACTIVIDAD[nv](esc(herr.n))}. El docente circula y pregunta por las decisiones, no por el avance.`,
     Cierre:`Tres minutos por equipo para mostrar la evidencia y contrastarla con la rúbrica. Cada estudiante anota qué haría distinto la próxima vez.`
   };
-  $('salida-secuencia').innerHTML=`<p class="nota" style="margin-bottom:8px;font-size:13.5px">Sesión de ${d.duracion} minutos · ${esc(d.nivel)} · ${NOM_RESTR[d.restriccion]}</p>`+
+  $('salida-secuencia').innerHTML=`<p class="nota" style="margin-bottom:8px;font-size:13.5px">${(+d.sesiones||1)>1?(+d.sesiones)+' sesiones de '+d.duracion+' minutos':'Sesión de '+d.duracion+' minutos'} · ${esc(d.nivel)} · ${NOM_RESTR[d.restriccion]}</p>`+
     bloques.map(b=>`<div class="linea"><div class="t">${b.m} min</div><div class="d"><b>${b.t}.</b> ${detalle[b.t]}</div></div>`).join('')+
     `<div class="linea"><div class="t">Total</div><div class="d"><b>${bloques.reduce((a,b)=>a+b.m,0)} minutos</b> · herramienta: ${esc(herr.n)}</div></div>`;
 
@@ -1101,24 +1137,65 @@ function fijarOpcion(grupo,valor){
 }
 function cargar(d){
   $('area').value=d.area||''; $('rae').value=d.rae||''; $('evidencia').value=d.evidencia||'';
-  estado.nivel=d.nivel||'Pregrado · presencial'; estado.duracion=[60,90,120].includes(+d.duracion)?+d.duracion:60;
+  /* v2 trae etapa y modalidad; v1 traía una sola cadena «Pregrado · presencial» */
+  let etapa=d.etapa, modalidad=d.modalidad;
+  if(!etapa && d.nivel){
+    const partes=String(d.nivel).split('·').map(x=>x.trim().toLowerCase());
+    const mapaEtapa={'preescolar':'preescolar','básica primaria':'primaria','basica primaria':'primaria','primaria':'primaria',
+      'básica secundaria':'secundaria','basica secundaria':'secundaria','secundaria':'secundaria','media':'media',
+      'técnica':'tecnica','tecnica':'tecnica','pregrado':'pregrado','posgrado':'posgrado','educación continua':'continua','continua':'continua'};
+    etapa=mapaEtapa[partes[0]]||'pregrado';
+    modalidad=/virtual/.test(partes[1]||'')?'virtual':/híb|hib/.test(partes[1]||'')?'hibrida':/presencial/.test(partes[1]||'')?'presencial':'presencial';
+  }
+  estado.etapa=ETAPAS[etapa]?etapa:'pregrado';
+  estado.modalidad=MODALIDADES[modalidad]?modalidad:'presencial';
+  estado.duracion=(+d.duracion>=20&&+d.duracion<=240)?+d.duracion:60;
+  estado.sesiones=(+d.sesiones>=1&&+d.sesiones<=3)?+d.sesiones:1;
   estado.restriccion=NOM_RESTR[d.restriccion]?d.restriccion:'conectividad'; estado.herr=d.herr||null;
   estado.fijado=d.fijado||null;
-  estado.tocado={nivel:true,restr:true};
-  fijarOpcion('nivel',estado.nivel); fijarOpcion('duracion',estado.duracion); fijarOpcion('restriccion',estado.restriccion);
+  estado.tocado={etapa:true,restr:true,duracion:(+d.duracion||60)!==ETAPAS[estado.etapa][1]};
+  fijarOpcion('etapa',estado.etapa); fijarOpcion('modalidad',estado.modalidad);
+  fijarOpcion('duracion',estado.duracion); fijarOpcion('sesiones',estado.sesiones); fijarOpcion('restriccion',estado.restriccion);
+  const otro=$('duracionOtro');
+  if(otro){ const conocido=[30,45,55,60,90,120].includes(estado.duracion);
+    otro.style.display=conocido?'none':'inline-block'; if(!conocido) otro.value=estado.duracion; }
 }
 
 /* ============================================================
    6 · EVENTOS DEL FORMULARIO Y DEL SEMÁFORO
    ============================================================ */
 ['area','rae','evidencia'].forEach(id=>$(id).addEventListener('input',()=>{ ocultarAvisos(); refrescar(); }));
-[['nivel','nivel'],['duracion','duracion'],['restriccion','restriccion']].forEach(([g,k])=>{
-  document.querySelectorAll('#'+g+' .opcion').forEach(b=>b.addEventListener('click',()=>{
-    estado[k]= k==='duracion' ? parseInt(b.dataset.v) : b.dataset.v;
-    if(k!=='duracion') estado.herr=null;
-    estado.tocado[k==='restriccion'?'restr':'nivel']=true;
-    fijarOpcion(g,b.dataset.v); ocultarAvisos(); refrescar();
-  }));
+$('etapa').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.etapa=b.dataset.v; estado.herr=null; estado.tocado.etapa=true;
+  if(!estado.tocado.duracion){ estado.duracion=ETAPAS[estado.etapa][1];
+    fijarOpcion('duracion',estado.duracion); $('duracionOtro').style.display='none'; }
+  fijarOpcion('etapa',estado.etapa); ocultarAvisos(); refrescar();
+});
+$('modalidad').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.modalidad=b.dataset.v; estado.herr=null;
+  fijarOpcion('modalidad',estado.modalidad); ocultarAvisos(); refrescar();
+});
+$('duracion').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  const v=parseInt(b.dataset.v);
+  if(v===0){ $('duracionOtro').style.display='inline-block'; $('duracionOtro').focus(); }
+  else { $('duracionOtro').style.display='none'; estado.duracion=v; estado.tocado.duracion=true; }
+  fijarOpcion('duracion',b.dataset.v); ocultarAvisos(); refrescar();
+});
+$('duracionOtro').addEventListener('input',e=>{
+  const v=Math.max(20,Math.min(240,parseInt(e.target.value)||0));
+  if(v){ estado.duracion=v; estado.tocado.duracion=true; ocultarAvisos(); refrescar(); }
+});
+$('sesiones').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.sesiones=parseInt(b.dataset.v); fijarOpcion('sesiones',estado.sesiones); ocultarAvisos(); refrescar();
+});
+$('restriccion').addEventListener('click',e=>{
+  const b=e.target.closest('.opcion'); if(!b) return;
+  estado.restriccion=b.dataset.v; estado.tocado.restr=true;
+  fijarOpcion('restriccion',estado.restriccion); ocultarAvisos(); refrescar();
 });
 $('criterios').addEventListener('click',e=>{
   const b=e.target.closest('button[data-a]'); if(!b) return;
@@ -1135,7 +1212,8 @@ $('criterios').addEventListener('click',e=>{
     rae.value=v.charAt(0).toUpperCase()+v.slice(1)+' '+t.charAt(0).toLowerCase()+t.slice(1);
   }else if(a==='evid'){ ev.value=v; avisar('Evidencia sugerida cargada. Ajústela a su tema.');
   }else if(a==='proceso'){ ev.value=ev.value.trim().replace(/\.*$/,'')+', con una justificación breve de las decisiones tomadas.';
-  }else if(a==='dur'){ estado.duracion=parseInt(v); fijarOpcion('duracion',v); }
+  }else if(a==='dur'){ estado.duracion=parseInt(v); estado.tocado.duracion=true; fijarOpcion('duracion',v); }
+  else if(a==='ses'){ estado.sesiones=parseInt(v); fijarOpcion('sesiones',estado.sesiones); }
   refrescar();
 });
 $('salida-trazabilidad').addEventListener('click',e=>{
