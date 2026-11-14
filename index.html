@@ -421,6 +421,8 @@
               <div class="opciones" id="nivel">
                 <button class="opcion on" data-v="Pregrado · presencial">Pregrado · presencial</button>
                 <button class="opcion" data-v="Pregrado · virtual">Pregrado · virtual</button>
+                <button class="opcion" data-v="Pregrado · híbrido">Pregrado · híbrido</button>
+                <button class="opcion" data-v="Posgrado · presencial">Posgrado · presencial</button>
                 <button class="opcion" data-v="Posgrado · virtual">Posgrado · virtual</button>
                 <button class="opcion" data-v="Posgrado · híbrido">Posgrado · híbrido</button>
               </div>
@@ -736,17 +738,25 @@ const HERRAMIENTAS={
              {n:'Google Forms',t:'formulario con respuestas exportables',nube:true},
              {n:'Tarjetas de respuesta',t:'respuesta rápida a mano alzada, sin equipos',nube:false,amb:'aula'},
              {n:'Cuestionario en PDF',t:'se descarga una vez y se responde sin conexión',nube:false,amb:'casa'}],
-  crear:[{n:'Genially',t:'recurso interactivo con capas',nube:true},
+  crear:[{n:'Escrito guiado por plantilla',t:'texto con estructura dada y casillas de argumentación',nube:false,amb:'ambos',si:/escrito|ensayo|informe|demanda|concepto|rese[ñn]a|art[ií]culo|ponencia/iu},
+         {n:'Maqueta o prototipo físico',t:'objeto construido y probado en el aula',nube:false,amb:'aula',si:/maqueta|prototipo|modelo f[ií]sico/iu},
+         {n:'Genially',t:'recurso interactivo con capas',nube:true},
          {n:'Canva',t:'pieza gráfica con plantillas',nube:true},
          {n:'Grabadora y editor de audio (Audacity)',t:'pieza sonora grabada y editada en el equipo',nube:false,amb:'ambos',si:/p[oó]dcast|audio|sonor|radio/iu},
          {n:'Papelógrafo y marcadores',t:'producto visible construido en el aula',nube:false,amb:'aula'},
          {n:'Presentación sin conexión',t:'archivo de PowerPoint o Impress trabajado en el equipo',nube:false,amb:'casa'}],
   simular:[{n:'Cuaderno de código (Colab)',t:'entorno con datos reales y ejecución paso a paso',nube:true,si:/c[oó]digo|program|algoritmo|modelo|clasificador|dataset|script/iu},
+           {n:'Caso clínico con lista de chequeo',t:'escenario de paciente con criterios observables de desempeño',nube:false,amb:'aula',si:/cl[ií]nic|enfermer|paciente|protocolo|signos|dosis|diagn[oó]stic|cuidado|salud|m[eé]dic/iu},
+           {n:'Simulación con maniquí o escenificación',t:'procedimiento ejecutado en un escenario controlado',nube:false,amb:'aula',si:/maniqu[ií]|rcp|reanimaci[oó]n|simulaci[oó]n cl[ií]nica|escenificaci[oó]n/iu},
+           {n:'Caso jurídico con expediente',t:'expediente con hechos, normas y pretensiones para resolver',nube:false,amb:'aula',si:/jur[ií]dic|jurisprudencia|sentencia|demanda|tutela|expediente|contrato|derecho civil|derecho penal|c[oó]digo civil|norma jur[ií]dica/iu},
+           {n:'Laboratorio o salida de campo con guía',t:'observación registrada en el lugar, con formato de registro',nube:false,amb:'aula',si:/laboratorio|campo|muestra|experimento|observaci[oó]n de campo|ecosistema/iu},
            {n:'Simulador PhET',t:'fenómeno manipulable con variables',nube:true,si:/f[ií]sic|qu[ií]mic|circuito|fen[oó]meno|energ[ií]a|\bondas?\b|fuerzas?\b/iu},
            {n:'Hoja de cálculo compartida',t:'datos y fórmulas a la vista de todos',nube:true},
            {n:'Caso impreso con datos',t:'escenario en papel para analizar en grupo',nube:false,amb:'aula'},
            {n:'Hoja de cálculo sin conexión',t:'archivo con datos que se trabaja en el equipo',nube:false,amb:'casa'}],
-  colaborar:[{n:'Padlet',t:'muro donde cada aporte queda fechado y comentable',nube:true},
+  colaborar:[{n:'Debate estructurado con roles',t:'posturas asignadas y turnos de réplica registrados',nube:false,amb:'aula',si:/debate|argument|postura|deliber|controvers|mesa redonda/iu},
+             {n:'Estudio de caso en grupo con acta',t:'acuerdos y desacuerdos que quedan por escrito',nube:false,amb:'aula',si:/caso|situaci[oó]n|problema real|contexto/iu},
+             {n:'Padlet',t:'muro donde cada aporte queda fechado y comentable',nube:true},
              {n:'Miro',t:'pizarra infinita para construir en grupo',nube:true},
              {n:'Documento compartido',t:'texto con historial de versiones y comentarios',nube:true},
              {n:'Notas adhesivas en el tablero',t:'aportes visibles que se agrupan y discuten',nube:false,amb:'aula'},
@@ -841,9 +851,10 @@ const PESOS=[30,30,20,20];
 /* ============================================================
    4 · MOTOR DE ALINEACIÓN
    ============================================================ */
-const estado={ nivel:'Pregrado · presencial', duracion:60, restriccion:'conectividad', herr:null, tocado:{nivel:false,restr:false} };
+const estado={ nivel:'Pregrado · presencial', duracion:60, restriccion:'conectividad', herr:null, fijado:null, tocado:{nivel:false,restr:false} };
 const leer=()=>({ area:$('area').value.trim(), rae:$('rae').value.trim(), evidencia:$('evidencia').value.trim(),
-  nivel:estado.nivel, duracion:estado.duracion, restriccion:estado.restriccion, herr:estado.herr });
+  nivel:estado.nivel, duracion:estado.duracion, restriccion:estado.restriccion, herr:estado.herr,
+  fijado:estado.fijado });
 
 function buscarVerbo(txt){
   let mejor=null;
@@ -855,8 +866,11 @@ function buscarVerbo(txt){
   return mejor;
 }
 function nivelEvidencia(txt){
-  let r=null;
-  NIVELES.forEach(n=>{ const m=EVIDENCIAS[n].exec(txt); if(m) r={nivel:n,palabra:m[0].toLowerCase()}; });
+  const hallados=[];
+  NIVELES.forEach(n=>{ const m=EVIDENCIAS[n].exec(txt); if(m) hallados.push({nivel:n,palabra:m[0].toLowerCase()}); });
+  if(!hallados.length) return null;
+  const r=hallados[hallados.length-1];        /* NIVELES va de menor a mayor: el último es el más alto */
+  if(hallados.length>1) r.todas=hallados.map(x=>x.nivel);
   return r;
 }
 function elegirHerramienta(d,nv,gap){
@@ -866,7 +880,8 @@ function elegirHerramienta(d,nv,gap){
   if(['aplicar','analizar','evaluar'].includes(nv) && /audit|m[eé]tric|desagreg|dataset|datos|modelo|clasificador|algoritmo|estad[ií]stic|c[aá]lcul|program|financier|indicador|presupuest|contab/.test(r)) grupo='simular';
   const virtual=/virtual/.test(d.nivel), sinNube=d.restriccion!=='conectividad';
   const ctx=d.area+' '+d.rae+' '+d.evidencia;
-  const orden=h=>!h.si?1:h.si.test(ctx)?0:2;      /* primero las que nombran su contexto */
+  const ctxFuerte=d.area+' '+d.rae;               /* lo que el docente quiere lograr pesa más que el entregable */
+  const orden=h=>!h.si?2:(h.si.test(ctxFuerte)?0:h.si.test(ctx)?1:3);
   const todas=[...HERRAMIENTAS[grupo]].sort((a,b)=>orden(a)-orden(b));
   let aptas=todas.filter(h=>!(sinNube&&h.nube));
   const porModalidad=aptas.filter(h=>h.nube || !virtual || h.amb!=='aula');
@@ -878,16 +893,20 @@ function elegirHerramienta(d,nv,gap){
 }
 
 function analizar(d){
-  const v=d.rae.length>=12 ? buscarVerbo(d.rae) : null;
+  const v=d.rae.length>=8 ? buscarVerbo(d.rae) : null;
   const observable=v && v.nivel!=='no';
-  const nv=observable ? v.nivel : 'aplicar';
+  const fijado=(d.fijado&&d.fijado.nivel)||null;
+  const nv=fijado || (observable ? v.nivel : 'aplicar');
   const iV=NIVELES.indexOf(nv);
-  const ev=d.evidencia.length>=12 ? nivelEvidencia(d.evidencia) : null;
+  let ev=d.evidencia.length>=12 ? nivelEvidencia(d.evidencia) : null;
+  if(d.fijado&&d.fijado.nivelEvidencia&&ev) ev=Object.assign({},ev,{nivel:d.fijado.nivelEvidencia,fijado:true});
+  if(d.fijado&&d.fijado.nivelEvidencia&&!ev) ev={nivel:d.fijado.nivelEvidencia,palabra:'(fijada por usted)',fijado:true};
   const iE=ev ? NIVELES.indexOf(ev.nivel) : -1;
   const proceso=RE_PROCESO.test(d.evidencia);
   const H=elegirHerramienta(d,nv);
   const crit=[];
   const pend=m=>({col:-1,estado:'',msg:m,acc:[]});
+  const fijadoActivo=!!fijado;
   const verbo=v ? v.palabra.charAt(0).toUpperCase()+v.palabra.slice(1).toLowerCase() : '';
 
   /* 1 · pertinencia */
@@ -950,12 +969,20 @@ function pintarSemaforo(A){
   if(A.completo){
     $('medVal').style.opacity=1; $('medVal').style.strokeDashoffset=C*(1-(A.nota-1)/4);
     $('medNum').textContent=coma(A.nota); $('medEtq').textContent=A.etq;
+    const caja=$('medNum').closest('.medidor, .semaforo, div');
+    if(caja) caja.setAttribute('aria-label',`Alineación del diseño: ${coma(A.nota)} de 5,0, ${A.etq}`);
   }else{
     $('medVal').style.opacity=0; $('medVal').style.strokeDashoffset=C; $('medNum').textContent='—';
     $('medEtq').textContent=A.crit.some(k=>k.estado==='mal')?'Hay algo por revisar':'Esperando sus decisiones';
   }
   $('verboChip').innerHTML = A.v
-    ? `<span class="verbo-chip"><i class="luz ${A.observable?'ok':'mal'}" style="margin:0"></i>Verbo detectado: <b>${esc(A.verbo)}</b> · ${A.observable?'nivel '+A.nv:'no observable'}</span>` : '';
+    ? `<span class="verbo-chip"><i class="luz ${A.observable?'ok':'mal'}" style="margin:0"></i>Verbo detectado: <b>${esc(A.verbo)}</b> · ${A.observable?'nivel '+A.nv:'no observable'}
+        <label class="nota" style="margin-left:10px">¿No es así?
+          <select id="fijarNivel" aria-label="Corregir el nivel del verbo" style="font:inherit;font-size:11.5px;padding:2px 6px;border-radius:6px;border:1px solid var(--borde);background:var(--panelSolido);color:var(--texto)">
+            <option value="">detectado</option>
+            ${NIVELES.map(n=>`<option value="${n}" ${(estado.fijado&&estado.fijado.nivel===n)?'selected':''}>${n}</option>`).join('')}
+          </select>
+        </label></span>` : '';
   const d=leer(), p=[d.area.length>3, d.rae.length>=12, d.evidencia.length>=12, estado.tocado.nivel, estado.tocado.restr];
   document.querySelectorAll('#progreso i').forEach((b,i)=>b.classList.toggle('on',p[i]));
 }
@@ -1030,11 +1057,12 @@ function generar(sinScroll){
 
   /* trazabilidad */
   $('salida-trazabilidad').innerHTML=`
-    <div class="linea"><div class="t">Verbo</div><div class="d">«${esc(A.verbo||'—')}» se ubica en el nivel <b>${nv}</b>. Ese nivel pide una herramienta de <b>${TIPO[H.grupo]}</b>.</div></div>
+    <div class="linea"><div class="t">Verbo</div><div class="d">«${esc(A.verbo||'—')}» se ubica en el nivel <b>${nv}</b>. Ese nivel pide una herramienta de <b>${TIPO[H.grupo]}</b>.
+      <br><span class="nota">${A.fijado?'Nivel fijado por usted; el motor lo respeta.':'La regla que lo ubica ahí: la palabra «'+esc((A.verbo||'').toLowerCase())+'» está en la lista del nivel '+nv+'.'}</span></div></div>
     <div class="linea"><div class="t">Restricción</div><div class="d">${d.restriccion==='conectividad'?'Con conectividad estable se prioriza la herramienta que mejor registra el proceso.':'Con '+NOM_RESTR[d.restriccion]+' se descartan las herramientas en la nube: la actividad debe sostenerse sin ellas.'}</div></div>
     <div class="linea"><div class="t">Alternativas</div><div class="d">${H.aptas.map(h=>`<button class="chip ${h===herr?'on':''}" data-herr="${esc(h.n)}" title="${esc(h.t)}">${esc(h.n)}</button>`).join('')}<br><span class="nota">Toque otra para cambiar la herramienta; todo se recalcula.</span></div></div>
     <div class="linea"><div class="t">Descartadas</div><div class="d">${H.descartadas.map(h=>`<span class="chip">${esc(h.n)} · ${h.por}</span>`).join('') || 'Ninguna: sus condiciones permiten todas.'}</div></div>
-    <div class="linea"><div class="t">Evidencia</div><div class="d"><b>${esc(d.evidencia)}</b>${A.ev?` — reconocida como «${esc(A.ev.palabra)}», nivel ${A.ev.nivel}.`:''}</div></div>`;
+    <div class="linea"><div class="t">Evidencia</div><div class="d"><b>${esc(d.evidencia)}</b>${A.ev?` — reconocida como «${esc(A.ev.palabra)}», nivel ${A.ev.nivel}${A.ev.fijado?' (fijado por usted)':''}.`+(A.ev.todas&&A.ev.todas.length>1?` También aparecen: ${A.ev.todas.filter(x=>x!==A.ev.nivel).join(', ')}; se toma el más alto.`:''):''}</div></div>`;
 
   $('docArea').textContent=d.area||'—'; $('docNivel').textContent=d.nivel;
   $('docDuracion').textContent=d.duracion+' minutos'; $('docRestriccion').textContent=NOM_RESTR[d.restriccion];
@@ -1056,13 +1084,26 @@ function refrescar(){
     else pintarSemaforo(analizar(leer()));
   },140);
 }
+function fijarNivelManual(v){
+  estado.fijado = v ? Object.assign({}, estado.fijado, {nivel:v}) : null;
+  generar(true); pintarSemaforo(analizar(leer()));
+}
 function fijarOpcion(grupo,valor){
-  document.querySelectorAll('#'+grupo+' .opcion').forEach(o=>o.classList.toggle('on',o.dataset.v===String(valor)));
+  const caja=document.getElementById(grupo);
+  if(caja && !caja.getAttribute('role')){ caja.setAttribute('role','radiogroup'); }
+  document.querySelectorAll('#'+grupo+' .opcion').forEach(o=>{
+    const on=o.dataset.v===String(valor);
+    o.classList.toggle('on',on);
+    o.setAttribute('role','radio');
+    o.setAttribute('aria-checked',on?'true':'false');
+    o.setAttribute('aria-pressed',on?'true':'false');
+  });
 }
 function cargar(d){
   $('area').value=d.area||''; $('rae').value=d.rae||''; $('evidencia').value=d.evidencia||'';
   estado.nivel=d.nivel||'Pregrado · presencial'; estado.duracion=[60,90,120].includes(+d.duracion)?+d.duracion:60;
   estado.restriccion=NOM_RESTR[d.restriccion]?d.restriccion:'conectividad'; estado.herr=d.herr||null;
+  estado.fijado=d.fijado||null;
   estado.tocado={nivel:true,restr:true};
   fijarOpcion('nivel',estado.nivel); fijarOpcion('duracion',estado.duracion); fijarOpcion('restriccion',estado.restriccion);
 }
@@ -1219,6 +1260,10 @@ $('importar').addEventListener('change',async e=>{
     escribirBanco(b); avisar(n?`Se importaron ${n} actividades.`:'No había actividades nuevas en ese archivo.');
   }catch(err){ avisar('Ese archivo no es un banco de actividades válido.'); }
   e.target.value='';
+});
+
+document.addEventListener('change',e=>{
+  if(e.target && e.target.id==='fijarNivel'){ fijarNivelManual(e.target.value || null); }
 });
 
 /* casos de ejemplo y disciplinas */

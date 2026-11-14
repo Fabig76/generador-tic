@@ -1,0 +1,119 @@
+{
+ "antes": {
+  "nota": 2.7,
+  "etq": "No aceptable",
+  "nv": "aplicar",
+  "herr": "Hoja de cálculo compartida",
+  "grupo": "simular",
+  "cols": [
+   4,
+   -1,
+   3,
+   -1
+  ]
+ },
+ "despues": {
+  "nota": 5,
+  "etq": "Excelente",
+  "nv": "comprender",
+  "herr": "Video corto compartido (Loom o Stream)",
+  "grupo": "explicar",
+  "cols": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "salud": {
+  "nota": 4.9,
+  "etq": "Sobresaliente",
+  "nv": "aplicar",
+  "herr": "Hoja de cálculo compartida",
+  "grupo": "simular",
+  "cols": [
+   0,
+   0,
+   1,
+   0
+  ]
+ },
+ "ing": {
+  "nota": 4.7,
+  "etq": "Sobresaliente",
+  "nv": "analizar",
+  "herr": "Cuaderno de código (Colab)",
+  "grupo": "simular",
+  "cols": [
+   0,
+   0,
+   1,
+   2
+  ]
+ },
+ "derecho": {
+  "nota": 4.9,
+  "etq": "Sobresaliente",
+  "nv": "evaluar",
+  "herr": "Padlet",
+  "grupo": "colaborar",
+  "cols": [
+   0,
+   0,
+   0,
+   1
+  ]
+ },
+ "educ": {
+  "nota": 4.9,
+  "etq": "Sobresaliente",
+  "nv": "crear",
+  "herr": "Genially",
+  "grupo": "crear",
+  "cols": [
+   0,
+   0,
+   0,
+   1
+  ]
+ },
+ "econ": {
+  "nota": 4.9,
+  "etq": "Sobresaliente",
+  "nv": "analizar",
+  "herr": "Hoja de cálculo compartida",
+  "grupo": "simular",
+  "cols": [
+   0,
+   0,
+   0,
+   1
+  ]
+ },
+ "artes": {
+  "nota": 4.9,
+  "etq": "Sobresaliente",
+  "nv": "crear",
+  "herr": "Grabadora y editor de audio (Audacity)",
+  "grupo": "crear",
+  "cols": [
+   0,
+   1,
+   0,
+   1
+  ]
+ },
+ "basicas": {
+  "nota": 4.9,
+  "etq": "Sobresaliente",
+  "nv": "aplicar",
+  "herr": "Simulador PhET",
+  "grupo": "simular",
+  "cols": [
+   0,
+   0,
+   1,
+   0
+  ]
+ }
+}
