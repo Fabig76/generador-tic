@@ -57,3 +57,14 @@ M8 · PWA
 
 Pruebas
 - `tests/pruebas.mjs`: 20 comprobaciones (carga, enlaces de la v1, controles, dominios, correccion manual, DUA, banco, impresion). Verdes en local y en la vista publicada.
+
+## v2 · tercera tanda
+
+M4 · Catalogo abierto
+- «Agregar mi herramienta» en la trazabilidad: nombre, que deja ver y conexion. Se guarda en `localStorage['tic-herramientas']`
+  y aparece en las alternativas de la actividad en curso.
+- Las herramientas propias se consideran en la eleccion, respetando la restriccion de conexion.
+
+M8 · Banco de la comunidad
+- `banco/index.json` con actividades de ejemplo por disciplina; la seccion «Del banco de la comunidad» las lista y las abre con un toque.
+- Solo se consulta por http(s); abierta desde el equipo, el resto de la pagina funciona igual.
